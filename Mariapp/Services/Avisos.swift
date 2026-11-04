@@ -28,10 +28,10 @@ enum Avisos {
         let cansament = UNNotificationCategory(
             identifier: Categoria.cansament.rawValue,
             actions: [
-                UNNotificationAction(identifier: Accio.cansamentPoc.rawValue, title: "⚡️ Poc (2)"),
-                UNNotificationAction(identifier: Accio.cansamentMig.rawValue, title: "🙂 Normalet (5)"),
-                UNNotificationAction(identifier: Accio.cansamentMolt.rawValue, title: "😴 Molt (8)"),
-                UNTextInputNotificationAction(identifier: Accio.cansamentEscriu.rawValue, title: "✍️ Escriu el número",
+                UNNotificationAction(identifier: Accio.cansamentPoc.rawValue, title: "⚡️ Poc (2)", options: []),
+                UNNotificationAction(identifier: Accio.cansamentMig.rawValue, title: "🙂 Normalet (5)", options: []),
+                UNNotificationAction(identifier: Accio.cansamentMolt.rawValue, title: "😴 Molt (8)", options: []),
+                UNTextInputNotificationAction(identifier: Accio.cansamentEscriu.rawValue, title: "✍️ Escriu el número", options: [],
                                               textInputButtonTitle: "Apuntar", textInputPlaceholder: "0 – 10"),
             ],
             intentIdentifiers: []
@@ -39,17 +39,17 @@ enum Avisos {
         let aigua = UNNotificationCategory(
             identifier: Categoria.aigua.rawValue,
             actions: [
-                UNNotificationAction(identifier: Accio.aiguaMitja.rawValue, title: "💧 Mitja botella"),
-                UNNotificationAction(identifier: Accio.aiguaBotella.rawValue, title: "💧💧 Una botella sencera"),
-                UNNotificationAction(identifier: Accio.cafe.rawValue, title: "☕️ Un café"),
+                UNNotificationAction(identifier: Accio.aiguaMitja.rawValue, title: "💧 Mitja botella", options: []),
+                UNNotificationAction(identifier: Accio.aiguaBotella.rawValue, title: "💧💧 Una botella sencera", options: []),
+                UNNotificationAction(identifier: Accio.cafe.rawValue, title: "☕️ Un café", options: []),
             ],
             intentIdentifiers: []
         )
         let gimnas = UNNotificationCategory(
             identifier: Categoria.gimnas.rawValue,
             actions: [
-                UNNotificationAction(identifier: Accio.gimnasSi.rawValue, title: "💪 Sí, he anat!"),
-                UNNotificationAction(identifier: Accio.gimnasNo.rawValue, title: "🛋️ Hui no"),
+                UNNotificationAction(identifier: Accio.gimnasSi.rawValue, title: "💪 Sí, he anat!", options: []),
+                UNNotificationAction(identifier: Accio.gimnasNo.rawValue, title: "🛋️ Hui no", options: []),
             ],
             intentIdentifiers: []
         )

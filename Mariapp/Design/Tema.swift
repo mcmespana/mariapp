@@ -62,7 +62,7 @@ struct CapcaleraTargeta<Dreta: View>: View {
     let color: Color
     @ViewBuilder var dreta: Dreta
 
-    init(icona: String, titol: String, color: Color, @ViewBuilder dreta: () -> Dreta = { EmptyView() }) {
+    init(icona: String, titol: String, color: Color, @ViewBuilder dreta: () -> Dreta) {
         self.icona = icona
         self.titol = titol
         self.color = color
@@ -82,6 +82,12 @@ struct CapcaleraTargeta<Dreta: View>: View {
             Spacer(minLength: 0)
             dreta
         }
+    }
+}
+
+extension CapcaleraTargeta where Dreta == EmptyView {
+    init(icona: String, titol: String, color: Color) {
+        self.init(icona: icona, titol: titol, color: color) { EmptyView() }
     }
 }
 

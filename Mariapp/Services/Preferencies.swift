@@ -64,6 +64,7 @@ final class Preferencies {
     }
 
     private init() {
+        let d = UserDefaults.standard
         rol = d.string(forKey: "rol").flatMap(Rol.init(rawValue:))
         avisosActius = d.object(forKey: "avisos.actius") as? Bool ?? true
         horaCansament = Self.llig("avisos.cansament") ?? Hora(hora: 18, minut: 30)

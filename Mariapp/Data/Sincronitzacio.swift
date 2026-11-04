@@ -58,6 +58,7 @@ final class Sincronitzacio {
     }
 
     /// Crea una llar nova al núvol i hi puja tot el que hi haja en local.
+    @MainActor
     func creaLlar() async {
         guard Self.firebaseDisponible else { return }
         configuraFirebase()
@@ -86,6 +87,7 @@ final class Sincronitzacio {
     }
 
     /// S'uneix a una llar existent amb el seu codi.
+    @MainActor
     func uneix(codi brut: String) async {
         guard Self.firebaseDisponible else { return }
         configuraFirebase()

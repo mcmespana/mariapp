@@ -290,15 +290,25 @@ struct TargetaDolor: View {
     @Environment(DataStore.self) private var store
     let dia: Dia
 
-    static let opcions: [(valor: Int, emoji: String, nom: String)] = [
-        (0, "🌼", "Gens"), (1, "🌥️", "Un poquet"), (2, "🌧️", "Prou"), (3, "⛈️", "Molt"),
+    struct Opcio: Identifiable {
+        let valor: Int
+        let emoji: String
+        let nom: String
+        var id: Int { valor }
+    }
+
+    static let opcions: [Opcio] = [
+        Opcio(valor: 0, emoji: "🌼", nom: "Gens"),
+        Opcio(valor: 1, emoji: "🌥️", nom: "Un poquet"),
+        Opcio(valor: 2, emoji: "🌧️", nom: "Prou"),
+        Opcio(valor: 3, emoji: "⛈️", nom: "Molt"),
     ]
 
     var body: some View {
         Targeta(tint: Paleta.groc) {
             CapcaleraTargeta(icona: "drop.triangle.fill", titol: "Molèsties d'orina", color: Paleta.groc)
             HStack(spacing: 8) {
-                ForEach(Self.opcions, id: \.valor) { o in
+                ForEach(Self.opcions) { o in
                     let seleccionat = dia.dolor == o.valor
                     Button {
                         store.posa(.dolor, seleccionat ? nil : o.valor)
