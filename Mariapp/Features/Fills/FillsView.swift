@@ -5,6 +5,7 @@ struct FillsView: View {
     @State private var bombolles: [Bombolla] = (0..<18).map { _ in Bombolla() }
     @State private var tocs = 0
     @State private var inici = Date()
+    @Environment(\.accessibilityReduceMotion) private var reduirMoviment
 
     private let missatges = [
         "Ací passaran coses boniques. Algun dia. ✨",
@@ -17,14 +18,20 @@ struct FillsView: View {
     var body: some View {
         ZStack {
             Paleta.fons.ignoresSafeArea()
-            TimelineView(.animation) { context in
+            TimelineView(.animation(minimumInterval: nil, paused: reduirMoviment)) { context in
                 let t = context.date.timeIntervalSince(inici)
                 Canvas { ctx, mida in
                     for b in bombolles {
                         let y = mida.height - CGFloat((t * b.velocitat + b.desfase).truncatingRemainder(dividingBy: 1.2)) * mida.height
                         let x = b.x * mida.width + CGFloat(sin(t * b.oscil + b.desfase * 6)) * 18
                         let rect = CGRect(x: x - b.mida / 2, y: y - b.mida / 2, width: b.mida, height: b.mida)
-                        ctx.fill(Path(ellipseIn: rect), with: .color(b.color.opacity(0.28)))
+                        // Bombolla de plastilina: degradat radial amb llum dalt-esquerra.
+                        ctx.fill(Path(ellipseIn: rect), with: .radialGradient(
+                            Gradient(colors: [Color.white.opacity(0.85), b.color.opacity(0.55)]),
+                            center: CGPoint(x: rect.minX + rect.width * 0.35, y: rect.minY + rect.height * 0.3),
+                            startRadius: 1,
+                            endRadius: b.mida * 0.8
+                        ))
                         if b.emoji != nil {
                             ctx.draw(Text(b.emoji!).font(.system(size: b.mida * 0.5)), at: CGPoint(x: x, y: y))
                         }

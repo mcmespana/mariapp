@@ -162,7 +162,9 @@ struct TriaCansament: View {
                 .foregroundStyle(Paleta.tinta)
                 .padding(.top, 24)
             Text(EscalaCansament.emoji(v, escala: escala))
-                .font(.system(size: 80))
+                .font(.system(size: 72))
+                .background { BolaClay(color: EscalaCansament.color(v, escala: escala), mida: 120) }
+                .padding(.vertical, 8)
                 .contentTransition(.symbolEffect)
                 .animation(.spring, value: v)
             Text("\(v)")
@@ -192,7 +194,7 @@ struct TriaCansament: View {
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Paleta.fons.ignoresSafeArea())
+        .background { FonsAmbTaques() }
         .onAppear { valor = Double(dia.cansament ?? escala / 2) }
     }
 }
@@ -231,7 +233,8 @@ struct TargetaGimnas: View {
                 }
                 .padding(14)
                 .foregroundStyle(dia.gimnas ? Color.white : Paleta.verd)
-                .background(dia.gimnas ? Paleta.verd : Paleta.verd.opacity(0.12), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .clay(Paleta.verd, radi: Clay.radiMitja, elevacio: dia.gimnas ? 0.7 : 0.45, ple: dia.gimnas)
+                .animation(Clay.mollaJuganera, value: dia.gimnas)
             }
             .buttonStyle(.plain)
             .sensoryFeedback(.success, trigger: salta)
@@ -271,10 +274,10 @@ struct TargetaCafes: View {
                     }
                 }
                 Spacer()
-                BotoRodo(icona: "minus", color: Paleta.cafe) {
+                BotoRodo(titol: "Un café menys", icona: "minus", color: Paleta.cafe) {
                     if dia.cafes > 0 { withAnimation(.spring) { store.suma(.cafes, -1) } }
                 }
-                BotoRodo(icona: "plus", color: Paleta.cafe) {
+                BotoRodo(titol: "Un café més", icona: "plus", color: Paleta.cafe) {
                     withAnimation(.spring) { store.suma(.cafes, 1) }
                     Sons.toca(.cafe)
                 }
@@ -315,15 +318,16 @@ struct TargetaDolor: View {
                     } label: {
                         VStack(spacing: 4) {
                             Text(o.emoji).font(.system(size: 26))
-                            Text(o.nom).font(.system(.caption2, design: .rounded).weight(.semibold))
+                            Text(o.nom).font(.system(.caption, design: .rounded).bold())
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
                         .foregroundStyle(seleccionat ? Color.white : Paleta.tinta)
-                        .background(seleccionat ? Paleta.groc : Paleta.paperFosc.opacity(0.7),
-                                    in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .clay(Paleta.groc, radi: Clay.radiXicotet, elevacio: seleccionat ? 0.6 : 0.3, ple: seleccionat)
+                        .animation(Clay.mollaJuganera, value: seleccionat)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityAddTraits(seleccionat ? .isSelected : [])
                 }
             }
             .sensoryFeedback(.selection, trigger: dia.dolor)
@@ -351,7 +355,7 @@ struct TargetaQueixes: View {
                         .foregroundStyle(Paleta.tintaSuau)
                 }
                 Spacer()
-                BotoRodo(icona: "minus", color: Paleta.taronja) {
+                BotoRodo(titol: "Una queixa menys", icona: "minus", color: Paleta.taronja) {
                     if dia.queixes > 0 { withAnimation(.spring) { store.suma(.queixes, -1) } }
                 }
                 Button {

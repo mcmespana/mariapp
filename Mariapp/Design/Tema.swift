@@ -16,7 +16,7 @@ struct FonsMariapp: ViewModifier {
     func body(content: Content) -> some View {
         content
             .scrollContentBackground(.hidden)
-            .background(Paleta.fons.ignoresSafeArea())
+            .background { FonsAmbTaques() }
     }
 }
 
@@ -26,7 +26,7 @@ extension View {
 
 // MARK: - Targeta
 
-/// La peça bàsica: un paper crema amb vores molt arrodonides i ombra suau.
+/// La peça bàsica: un tros de plastilina crema, amb l'ombra tenyida del color de la secció.
 struct Targeta<Contingut: View>: View {
     var tint: Color? = nil
     @ViewBuilder var contingut: Contingut
@@ -37,25 +37,11 @@ struct Targeta<Contingut: View>: View {
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background {
-            RoundedRectangle(cornerRadius: 26, style: .continuous)
-                .fill(Paleta.paper)
-                .overlay {
-                    if let tint {
-                        RoundedRectangle(cornerRadius: 26, style: .continuous)
-                            .fill(LinearGradient(colors: [tint.opacity(0.10), .clear], startPoint: .topLeading, endPoint: .bottomTrailing))
-                    }
-                }
-                .shadow(color: Color.black.opacity(0.05), radius: 14, y: 6)
-        }
-        .overlay {
-            RoundedRectangle(cornerRadius: 26, style: .continuous)
-                .strokeBorder(Paleta.linia.opacity(0.6), lineWidth: 0.5)
-        }
+        .clay(tint ?? Paleta.tintaSuau)
     }
 }
 
-/// Capçalera d'una targeta: icona en una pastilla de color + títol + (opcional) alguna cosa a la dreta.
+/// Capçalera d'una targeta: icona-caramel + títol + (opcional) alguna cosa a la dreta.
 struct CapcaleraTargeta<Dreta: View>: View {
     let icona: String
     let titol: String
@@ -70,15 +56,12 @@ struct CapcaleraTargeta<Dreta: View>: View {
     }
 
     var body: some View {
-        HStack(spacing: 10) {
-            Image(systemName: icona)
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(color)
-                .frame(width: 32, height: 32)
-                .background(color.opacity(0.15), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        HStack(spacing: 12) {
+            IconaClay(icona: icona, color: color)
             Text(titol)
                 .font(.titolTargeta)
                 .foregroundStyle(Paleta.tinta)
+                .accessibilityAddTraits(.isHeader)
             Spacer(minLength: 0)
             dreta
         }
@@ -93,20 +76,25 @@ extension CapcaleraTargeta where Dreta == EmptyView {
 
 // MARK: - Botons
 
-/// Botó suau: fons del color molt clar, text del color.
+/// Botó de plastilina: s'enfonsa en prémer-lo i torna amb un botet en soltar-lo.
 struct BotoSuau: ButtonStyle {
     var color: Color = Paleta.aigua
     var ple: Bool = false
 
     func makeBody(configuration: Configuration) -> some View {
+        let premut = configuration.isPressed
         configuration.label
-            .font(.system(.subheadline, design: .rounded).weight(.semibold))
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
+            .font(.system(.subheadline, design: .rounded).bold())
+            .padding(.horizontal, 16)
+            .padding(.vertical, 11)
+            .frame(minHeight: 44)
             .foregroundStyle(ple ? Color.white : color)
-            .background(ple ? color : color.opacity(0.14), in: Capsule())
-            .scaleEffect(configuration.isPressed ? 0.94 : 1)
-            .animation(.spring(response: 0.25, dampingFraction: 0.6), value: configuration.isPressed)
+            .background {
+                FonsClay(tint: color, radi: 22, elevacio: premut ? 0.25 : 0.6, ple: ple)
+            }
+            .scaleEffect(premut ? 0.95 : 1)
+            .offset(y: premut ? 1.5 : 0)
+            .animation(premut ? Clay.molla : Clay.mollaJuganera, value: premut)
     }
 }
 
@@ -114,30 +102,31 @@ extension ButtonStyle where Self == BotoSuau {
     static func suau(_ color: Color, ple: Bool = false) -> BotoSuau { BotoSuau(color: color, ple: ple) }
 }
 
-/// Botó rodó petit (+ / −).
+/// Botó rodó petit (+ / −). Sempre amb text per a VoiceOver.
 struct BotoRodo: View {
+    let titol: String
     let icona: String
     let color: Color
     let accio: () -> Void
 
     var body: some View {
-        Button(action: accio) {
-            Image(systemName: icona)
-                .font(.system(size: 16, weight: .bold))
-                .frame(width: 40, height: 40)
-        }
-        .buttonStyle(BotoRodoEstil(color: color))
+        Button(titol, systemImage: icona, action: accio)
+            .labelStyle(.iconOnly)
+            .buttonStyle(BotoRodoEstil(color: color))
     }
 }
 
 private struct BotoRodoEstil: ButtonStyle {
     let color: Color
     func makeBody(configuration: Configuration) -> some View {
+        let premut = configuration.isPressed
         configuration.label
+            .font(.system(size: 16, weight: .heavy))
             .foregroundStyle(color)
-            .background(color.opacity(0.14), in: Circle())
-            .scaleEffect(configuration.isPressed ? 0.88 : 1)
-            .animation(.spring(response: 0.25, dampingFraction: 0.55), value: configuration.isPressed)
+            .frame(width: 44, height: 44)
+            .background { FonsClay(tint: color, radi: 22, elevacio: premut ? 0.2 : 0.55) }
+            .scaleEffect(premut ? 0.9 : 1)
+            .animation(premut ? Clay.molla : Clay.mollaJuganera, value: premut)
     }
 }
 
@@ -150,11 +139,17 @@ struct Xip: View {
 
     var body: some View {
         Text(text)
-            .font(.system(.caption, design: .rounded).weight(.semibold))
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
+            .font(.system(.caption, design: .rounded).bold())
+            .padding(.horizontal, 11)
+            .padding(.vertical, 7)
             .foregroundStyle(seleccionat ? .white : color)
-            .background(seleccionat ? color : color.opacity(0.12), in: Capsule())
+            .background {
+                if seleccionat {
+                    FonsClay(tint: color, radi: 14, elevacio: 0.35, ple: true)
+                } else {
+                    Capsule().fill(color.opacity(0.12))
+                }
+            }
     }
 }
 
@@ -167,11 +162,14 @@ struct EnConstruccio: View {
     var color: Color = Paleta.groc
 
     @State private var bota = false
+    @Environment(\.accessibilityReduceMotion) private var reduirMoviment
 
     var body: some View {
         VStack(spacing: 18) {
             Text(emoji)
-                .font(.system(size: 72))
+                .font(.system(size: 64))
+                .background { BolaClay(color: color, mida: 130) }
+                .padding(.bottom, 12)
                 .scaleEffect(bota ? 1.06 : 0.96)
                 .rotationEffect(.degrees(bota ? 3 : -3))
                 .animation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true), value: bota)
@@ -188,7 +186,7 @@ struct EnConstruccio: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .fonsMariapp()
-        .onAppear { bota = true }
+        .onAppear { bota = !reduirMoviment }
     }
 }
 

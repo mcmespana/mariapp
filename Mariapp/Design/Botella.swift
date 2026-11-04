@@ -4,12 +4,15 @@ import SwiftUI
 struct Botella: View {
     var progres: Double
     var color: Color = Paleta.aigua
+    @Environment(\.accessibilityReduceMotion) private var reduirMoviment
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1 / 30)) { context in
+        TimelineView(.animation(minimumInterval: 1 / 30, paused: reduirMoviment)) { context in
             let t = context.date.timeIntervalSinceReferenceDate
             ZStack {
-                FormaBotella().fill(Paleta.paperFosc)
+                FormaBotella().fill(
+                    Paleta.paperFosc.shadow(.inner(color: color.opacity(0.25), radius: 6, x: -3, y: -4))
+                )
                 Onada(nivell: progres, fase: t * 1.8, amplitud: 4).fill(color.opacity(0.35))
                 Onada(nivell: progres, fase: t * 2.5 + 1.3, amplitud: 3).fill(color.opacity(0.85))
                 // Reflex de vidre
@@ -21,7 +24,14 @@ struct Botella: View {
                     .padding(.leading, 10)
             }
             .clipShape(FormaBotella())
-            .overlay(FormaBotella().stroke(color.opacity(0.45), lineWidth: 2))
+            .overlay {
+                // Vores de plastilina: llum dalt, ombra baix.
+                FormaBotella().stroke(
+                    LinearGradient(colors: [Color.white.opacity(0.9), color.opacity(0.55)], startPoint: .topLeading, endPoint: .bottomTrailing),
+                    lineWidth: 3
+                )
+            }
+            .shadow(color: color.opacity(0.35), radius: 12, x: 0, y: 8)
         }
         .animation(.spring(response: 0.9, dampingFraction: 0.7), value: progres)
         .accessibilityElement()

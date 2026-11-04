@@ -30,11 +30,11 @@ struct DavidView: View {
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
-                            .foregroundStyle(Paleta.tinta)
-                            .background(filtre == t ? Paleta.taronja.opacity(0.25) : Paleta.paper,
-                                        in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .foregroundStyle(filtre == t ? Color.white : Paleta.tinta)
+                            .clay(Paleta.taronja, radi: Clay.radiMitja, elevacio: filtre == t ? 0.6 : 0.4, ple: filtre == t)
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel("\(t.nom): \(n)")
                     }
                 }
 

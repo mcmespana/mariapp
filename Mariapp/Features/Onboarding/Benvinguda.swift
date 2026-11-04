@@ -9,11 +9,14 @@ struct Benvinguda: View {
         VStack(spacing: 28) {
             Spacer()
             ZStack {
-                Circle().fill(Paleta.groc.opacity(0.25)).frame(width: 190, height: 190)
+                BolaClay(color: Paleta.groc, mida: 180)
                     .scaleEffect(apareix ? 1 : 0.6)
-                Circle().fill(Paleta.aigua.opacity(0.25)).frame(width: 120, height: 120)
-                    .offset(x: 60, y: 40)
+                BolaClay(color: Paleta.aigua, mida: 84)
+                    .offset(x: 82, y: 64)
                     .scaleEffect(apareix ? 1 : 0.4)
+                BolaClay(color: Paleta.verd, mida: 46)
+                    .offset(x: -88, y: 58)
+                    .scaleEffect(apareix ? 1 : 0.3)
                 Text("🌻").font(.system(size: 84))
                     .rotationEffect(.degrees(apareix ? 0 : -30))
             }
@@ -59,7 +62,7 @@ struct Benvinguda: View {
             .padding(.bottom, 40)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Paleta.fons.ignoresSafeArea())
+        .background { FonsAmbTaques() }
         .onAppear { apareix = true }
     }
 }

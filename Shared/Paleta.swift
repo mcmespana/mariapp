@@ -11,6 +11,8 @@ enum Paleta {
     // Superfícies
     static let fons = Color.dinamic(clar: 0xF7F1E6, fosc: 0x1C1A17)
     static let paper = Color.dinamic(clar: 0xFFFBF3, fosc: 0x272420)
+    /// Part de dalt de la plastilina (una mica més clara que el paper).
+    static let clayLlum = Color.dinamic(clar: 0xFFFEFA, fosc: 0x2F2B26)
     static let paperFosc = Color.dinamic(clar: 0xEFE6D4, fosc: 0x34302A)
     static let linia = Color.dinamic(clar: 0xE6DCC8, fosc: 0x3D3831)
 
