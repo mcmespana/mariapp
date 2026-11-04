@@ -1,6 +1,6 @@
 # Instrucciones para agentes (Claude)
 
-App nativa SwiftUI para **iOS 27+ y macOS 27+** (un único target multiplataforma) + extensión de widgets iOS.
+App nativa SwiftUI para **iOS 26+ y macOS 26+** (los móviles ya están en iOS 27) (un único target multiplataforma) + extensión de widgets iOS.
 El proyecto Xcode se genera con **XcodeGen** desde `project.yml` (no hay `.xcodeproj` en git).
 
 ## Reglas
@@ -25,7 +25,7 @@ El proyecto Xcode se genera con **XcodeGen** desde `project.yml` (no hay `.xcode
 8. Commits pequeños, en castellano, uno por plan o sub-parte.
 
 ## Skills instaladas (`.claude/skills/`) — úsalas
-- Diseño y SwiftUI: `apple-design`, `swiftui-pro` (iOS 27 es el objetivo: sus APIs están permitidas), `swiftui-animation`, `swiftui-liquid-glass`, `swift-charts`.
+- Diseño y SwiftUI: `apple-design`, `swiftui-pro` (**ojo**: los runners de GitHub solo tienen Xcode 26.6 / SDK iOS 26.5; NO uses APIs exclusivas de iOS 27 —ni con `#available`— hasta que el workflow use Xcode 27, porque no compilaría), `swiftui-animation`, `swiftui-liquid-glass`, `swift-charts`.
 - Swift: `write-swift` (seguimos en modo Swift 5 por ahora), `swift-testing-pro` (plan 09).
 - Sistema: `widgetkit`, `activitykit`, `app-intents`, `push-notifications`, `eventkit` (plan 03), `alarmkit` (plan 02), `tipkit`, `healthkit` (ideas).
 - Firebase: `firebase-security-rules-auditor` (revisar `firebase/firestore.rules`).
