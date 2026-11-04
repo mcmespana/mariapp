@@ -13,7 +13,7 @@ struct HuiView: View {
                 Salutacio()
                 if !prefs.esMaria {
                     Targeta(tint: Paleta.taronja) {
-                        Label("Estàs veient el dia de la Maria. Mira però no toques 👀", systemImage: "eye")
+                        Label("Estàs en el dia de la Maria. Pots apuntar-li coses (amb carinyo) ✏️", systemImage: "pencil.and.outline")
                             .font(.system(.subheadline, design: .rounded))
                             .foregroundStyle(Paleta.tinta)
                     }
@@ -27,7 +27,6 @@ struct HuiView: View {
                     TargetaQueixes(dia: dia)
                     TargetaNota(dia: dia)
                 }
-                .disabled(!prefs.esMaria)
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 32)

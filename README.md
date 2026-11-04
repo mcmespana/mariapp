@@ -7,7 +7,7 @@ Interfaz en **valenciano**; documentación en castellano.
 
 | Sección | Estado | Qué hay |
 |---|---|---|
-| **Hui** (hoy) | ✅ | Agua con botella animada (¼, ½, 1 botella de 750 ml), cafés, gimnasio, cansancio 0–10, molestias de orina, contador de quejas sobre David, nota del día |
+| **Hui** (hoy) | ✅ | Agua con botella animada (¼, ½, 1 botella de 750 ml), cafés, gimnasio, cansòmetre 0–1000 (dial de plastilina), molestias de orina, contador de quejas sobre David, nota del día |
 | **Estadístiques** | ✅ | Gimnasio por mes (🏆 mejor mes), cansancio medio, día de la semana más cansado, cafés vs cansancio, agua, días con molestias, quejas |
 | **David** | ✅ | Pensamientos sobre David: quejas, agradecimientos, cosas bonitas, ideas |
 | **Fills / Filles / Fillis…** | ✅ | El nombre cambia cada día. Burbujas y magia. |

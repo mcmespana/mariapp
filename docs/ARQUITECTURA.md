@@ -47,7 +47,7 @@ Botón del widget ──► SumaAiguaIntent (LiveActivityIntent → se ejecuta e
 ## Notificaciones
 
 - Solo en el dispositivo con rol **Maria**.
-- `rutina.cansament` (18:30 por defecto) con botones 2 / 5 / 8 y campo para escribir el número.
+- `rutina.cansament` (18:30 por defecto) con botones Poquet / Normalet / Feta pols (20 %, 50 %, 80 % de la escala) y campo para escribir el número del 0 al 1000.
 - `rutina.aigua.HH:MM` con botones ½ botella / 1 botella / café.
 - `rutina.gimnas` (21:30) Sí/No.
 - `cita.<id>.<minutos>`: alertas de médicos, *time-sensitive*, con sirena. (Las programa el plan 02.)

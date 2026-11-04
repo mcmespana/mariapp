@@ -87,15 +87,23 @@ enum EscalaCansament {
         return emojis[max(0, min(10, i))]
     }
 
+    static let frases = [
+        "Fresca com una lletuga 🥬",
+        "Amb les piles noves 🔋",
+        "Prou bé, la veritat",
+        "Normalet, tirant",
+        "A mig gas ⛽️",
+        "Cansadeta",
+        "Necessite un sofà 🛋️",
+        "Mode zombi activat 🧟‍♀️",
+        "Feta pols",
+        "Feta pols i escampada 🌪️",
+        "Desconnectada. Bona nit 🪦",
+    ]
+
     static func text(_ valor: Int, escala: Int) -> String {
         let r = Double(valor) / Double(max(escala, 1))
-        switch r {
-        case ..<0.2: return "Fresqueta com una rosa"
-        case ..<0.4: return "Prou bé"
-        case ..<0.6: return "Normalet"
-        case ..<0.8: return "Cansadeta"
-        default: return "Feta pols"
-        }
+        return frases[max(0, min(10, Int(r * 10)))]
     }
 
     static func color(_ valor: Int, escala: Int) -> Color {
@@ -119,11 +127,20 @@ struct TargetaCansament: View {
             CapcaleraTargeta(icona: "battery.25percent", titol: "Cansament", color: Paleta.blau)
             if let valor = dia.cansament {
                 HStack(spacing: 14) {
-                    Text(EscalaCansament.emoji(valor, escala: escala)).font(.system(size: 44))
+                    Text(EscalaCansament.emoji(valor, escala: escala))
+                        .font(.system(size: 34))
+                        .background { BolaClay(color: EscalaCansament.color(valor, escala: escala), mida: 58) }
+                        .frame(width: 60, height: 60)
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("\(valor) / \(escala)")
-                            .font(.numeroGran)
-                            .foregroundStyle(Paleta.tinta)
+                        HStack(alignment: .firstTextBaseline, spacing: 4) {
+                            Text("\(valor)")
+                                .font(.numeroGran)
+                                .foregroundStyle(Paleta.tinta)
+                                .contentTransition(.numericText(value: Double(valor)))
+                            Text("/ \(escala)")
+                                .font(.system(.subheadline, design: .rounded).bold())
+                                .foregroundStyle(Paleta.tintaSuau)
+                        }
                         Text(EscalaCansament.text(valor, escala: escala))
                             .font(.system(.subheadline, design: .rounded))
                             .foregroundStyle(Paleta.tintaSuau)
@@ -132,6 +149,7 @@ struct TargetaCansament: View {
                     Button("Canviar") { nav.mostraCansament = true }
                         .buttonStyle(.suau(Paleta.blau))
                 }
+                BarraCansament(fraccio: Double(valor) / Double(max(escala, 1)))
             } else {
                 Text("Com estàs de cansada hui?")
                     .font(.system(.body, design: .rounded))
@@ -151,43 +169,58 @@ struct TriaCansament: View {
     @Environment(DataStore.self) private var store
     @Environment(\.dismiss) private var tanca
     let dia: Dia
-    @State private var valor: Double = 5
+    @State private var valor: Double = 500
 
     var body: some View {
         let escala = store.config.escalaCansament
-        let v = Int(valor.rounded())
-        VStack(spacing: 22) {
+        let v = Int(valor)
+        let color = EscalaCansament.color(v, escala: escala)
+        VStack(spacing: 18) {
             Text("Com estàs de cansada?")
                 .font(.titolGran(26))
                 .foregroundStyle(Paleta.tinta)
-                .padding(.top, 24)
-            Text(EscalaCansament.emoji(v, escala: escala))
-                .font(.system(size: 72))
-                .background { BolaClay(color: EscalaCansament.color(v, escala: escala), mida: 120) }
-                .padding(.vertical, 8)
-                .contentTransition(.symbolEffect)
-                .animation(.spring, value: v)
-            Text("\(v)")
-                .font(.system(size: 54, weight: .bold, design: .rounded))
-                .foregroundStyle(EscalaCansament.color(v, escala: escala))
-                .contentTransition(.numericText())
-            Slider(value: $valor, in: 0...Double(escala), step: 1)
-                .tint(EscalaCansament.color(v, escala: escala))
-                .padding(.horizontal, 32)
-                .sensoryFeedback(.selection, trigger: v)
-            HStack {
-                Text("Fresqueta").font(.caption)
-                Spacer()
-                Text("Feta pols").font(.caption)
+                .padding(.top, 28)
+            Text("El cansòmetre oficial, del 0 al \(escala)")
+                .font(.system(.subheadline, design: .rounded))
+                .foregroundStyle(Paleta.tintaSuau)
+
+            ZStack(alignment: .bottom) {
+                DialCansament(valor: $valor, escala: escala)
+                VStack(spacing: 0) {
+                    Text(EscalaCansament.emoji(v, escala: escala))
+                        .font(.system(size: 44))
+                        .contentTransition(.opacity)
+                    Text("\(v)")
+                        .font(.system(size: 58, weight: .heavy, design: .rounded))
+                        .foregroundStyle(color)
+                        .contentTransition(.numericText(value: valor))
+                        .monospacedDigit()
+                }
+                .padding(.bottom, 22)
+                .allowsHitTesting(false)
             }
-            .foregroundStyle(Paleta.tintaSuau)
-            .padding(.horizontal, 36)
-            Button {
-                store.posa(.cansament, v, dia: dia.id)
-                Sons.toca(.campaneta)
-                tanca()
-            } label: {
-                Text("Apuntar").frame(maxWidth: .infinity)
+            .frame(height: 230)
+            .padding(.horizontal, 20)
+            .sensoryFeedback(.selection, trigger: v / max(escala / 20, 1))
+
+            Text(EscalaCansament.text(v, escala: escala))
+                .font(.system(.title3, design: .rounded).bold())
+                .foregroundStyle(Paleta.tinta)
+                .contentTransition(.opacity)
+                .animation(Clay.molla, value: EscalaCansament.text(v, escala: escala))
+
+            HStack(spacing: 14) {
+                BotoRodo(titol: "Menys", icona: "minus", color: color) { mou(-Double(max(escala / 20, 1)), escala: escala) }
+                Text("Arrossega la bola o afina amb els botons")
+                    .font(.system(.caption, design: .rounded))
+                    .foregroundStyle(Paleta.tintaSuau)
+                    .multilineTextAlignment(.center)
+                BotoRodo(titol: "Més", icona: "plus", color: color) { mou(Double(max(escala / 20, 1)), escala: escala) }
+            }
+            .padding(.horizontal, 28)
+
+            Button(action: desa) {
+                Text("Apuntar \(v)").frame(maxWidth: .infinity)
             }
             .buttonStyle(.suau(Paleta.blau, ple: true))
             .padding(.horizontal, 32)
@@ -196,6 +229,37 @@ struct TriaCansament: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background { FonsAmbTaques() }
         .onAppear { valor = Double(dia.cansament ?? escala / 2) }
+    }
+
+    private func mou(_ delta: Double, escala: Int) {
+        withAnimation(Clay.molla) {
+            valor = min(max(valor + delta, 0), Double(escala))
+        }
+    }
+
+    private func desa() {
+        store.posa(.cansament, Int(valor), dia: dia.id)
+        Sons.toca(.campaneta)
+        tanca()
+    }
+}
+
+/// Barreta de plastilina amb el degradat del cansòmetre.
+struct BarraCansament: View {
+    let fraccio: Double
+
+    var body: some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                Capsule().fill(Paleta.paperFosc.shadow(.inner(color: Color.black.opacity(0.18), radius: 3, x: 1, y: 2)))
+                Capsule()
+                    .fill(LinearGradient(colors: [Paleta.verd, Paleta.groc, Paleta.taronja], startPoint: .leading, endPoint: .trailing)
+                        .shadow(.inner(color: Color.white.opacity(0.5), radius: 2, x: 1, y: 1)))
+                    .frame(width: max(geo.size.width * min(max(fraccio, 0), 1), 14))
+            }
+        }
+        .frame(height: 14)
+        .accessibilityHidden(true)
     }
 }
 

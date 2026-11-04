@@ -28,11 +28,11 @@ enum Avisos {
         let cansament = UNNotificationCategory(
             identifier: Categoria.cansament.rawValue,
             actions: [
-                UNNotificationAction(identifier: Accio.cansamentPoc.rawValue, title: "⚡️ Poc (2)", options: []),
-                UNNotificationAction(identifier: Accio.cansamentMig.rawValue, title: "🙂 Normalet (5)", options: []),
-                UNNotificationAction(identifier: Accio.cansamentMolt.rawValue, title: "😴 Molt (8)", options: []),
+                UNNotificationAction(identifier: Accio.cansamentPoc.rawValue, title: "⚡️ Poquet", options: []),
+                UNNotificationAction(identifier: Accio.cansamentMig.rawValue, title: "🙂 Normalet", options: []),
+                UNNotificationAction(identifier: Accio.cansamentMolt.rawValue, title: "😴 Feta pols", options: []),
                 UNTextInputNotificationAction(identifier: Accio.cansamentEscriu.rawValue, title: "✍️ Escriu el número", options: [],
-                                              textInputButtonTitle: "Apuntar", textInputPlaceholder: "0 – 10"),
+                                              textInputButtonTitle: "Apuntar", textInputPlaceholder: "Del 0 al 1000"),
             ],
             intentIdentifiers: []
         )
@@ -76,7 +76,7 @@ enum Avisos {
                 id: "rutina.cansament",
                 hora: prefs.horaCansament,
                 titol: "Com estàs de cansada? 🫖",
-                cos: "Puntua'l del 0 al 10. Sense pensar-ho massa.",
+                cos: "El cansòmetre et espera: del 0 al 1000. Sense pensar-ho massa.",
                 categoria: .cansament,
                 so: .campaneta
             )
@@ -191,9 +191,9 @@ enum Avisos {
         let store = DataStore.shared
         let ampolla = store.config.ampollaMl
         switch Accio(rawValue: accio) {
-        case .cansamentPoc: store.posa(.cansament, 2)
-        case .cansamentMig: store.posa(.cansament, 5)
-        case .cansamentMolt: store.posa(.cansament, 8)
+        case .cansamentPoc: store.posa(.cansament, store.config.escalaCansament * 2 / 10)
+        case .cansamentMig: store.posa(.cansament, store.config.escalaCansament * 5 / 10)
+        case .cansamentMolt: store.posa(.cansament, store.config.escalaCansament * 8 / 10)
         case .cansamentEscriu:
             if let text, let n = Int(text.trimmingCharacters(in: .whitespaces)) {
                 store.posa(.cansament, max(0, min(store.config.escalaCansament, n)))

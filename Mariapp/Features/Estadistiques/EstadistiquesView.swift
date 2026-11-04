@@ -86,7 +86,7 @@ struct EstadistiquesView: View {
                     if !punts.isEmpty {
                         Targeta(tint: Paleta.cafe) {
                             CapcaleraTargeta(icona: "cup.and.saucer.fill", titol: "Cafés i cansament", color: Paleta.cafe)
-                            if let frase = Analisi.fraseCafes(punts) {
+                            if let frase = Analisi.fraseCafes(punts, escala: escala) {
                                 Text(frase)
                                     .font(.system(.subheadline, design: .rounded))
                                     .foregroundStyle(Paleta.tinta)

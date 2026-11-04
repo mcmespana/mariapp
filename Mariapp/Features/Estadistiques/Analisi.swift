@@ -89,7 +89,7 @@ enum Analisi {
     }
 
     /// Frase sobre la relació cafés–cansament.
-    static func fraseCafes(_ punts: [PuntCafeCansament]) -> String? {
+    static func fraseCafes(_ punts: [PuntCafeCansament], escala: Int) -> String? {
         let pocs = punts.filter { $0.cafes <= 1 }
         let molts = punts.filter { $0.cafes >= 3 }
         func mitja(_ p: [PuntCafeCansament]) -> Double? {
@@ -98,10 +98,11 @@ enum Analisi {
             return p.reduce(0) { $0 + $1.cansament * Double($1.dies) } / Double(dies)
         }
         guard let a = mitja(pocs), let b = mitja(molts) else { return nil }
-        let f = { (x: Double) in String(format: "%.1f", x).replacingOccurrences(of: ".", with: ",") }
-        if b > a + 0.5 {
+        let f = { (x: Double) in escala > 10 ? "\(Int(x.rounded()))" : String(format: "%.1f", x).replacingOccurrences(of: ".", with: ",") }
+        let llindar = Double(escala) * 0.05
+        if b > a + llindar {
             return "Els dies de 3 o més cafés estàs més cansada (\(f(b))) que els de 0–1 (\(f(a))). El café no ho arregla tot ☕️"
-        } else if a > b + 0.5 {
+        } else if a > b + llindar {
             return "Els dies de 0–1 cafés estàs més cansada (\(f(a))) que els de 3 o més (\(f(b)))."
         }
         return "El café no sembla canviar gaire el cansament (\(f(a)) vs \(f(b)))."

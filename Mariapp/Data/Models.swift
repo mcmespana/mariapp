@@ -21,7 +21,7 @@ struct Dia: Registre {
     var cafes: Int = 0
     var queixes: Int = 0
     var gimnas: Bool = false
-    /// 0...escala (per defecte 10). nil = no apuntat.
+    /// 0...escala (per defecte 1000, el cansòmetre). nil = no apuntat.
     var cansament: Int?
     /// 0 gens, 1 un poquet, 2 prou, 3 molt. nil = no apuntat.
     var dolor: Int?
@@ -58,7 +58,7 @@ struct Configuracio: Registre {
     var id: String = Configuracio.idGeneral
     var ampollaMl: Int = 750
     var objectiuMl: Int = 2250
-    var escalaCansament: Int = 10
+    var escalaCansament: Int = 1000
 
     init() {}
 
@@ -67,7 +67,7 @@ struct Configuracio: Registre {
         id = try c.decodeIfPresent(String.self, forKey: .id) ?? Configuracio.idGeneral
         ampollaMl = try c.decodeIfPresent(Int.self, forKey: .ampollaMl) ?? 750
         objectiuMl = try c.decodeIfPresent(Int.self, forKey: .objectiuMl) ?? 2250
-        escalaCansament = try c.decodeIfPresent(Int.self, forKey: .escalaCansament) ?? 10
+        escalaCansament = try c.decodeIfPresent(Int.self, forKey: .escalaCansament) ?? 1000
     }
 }
 
