@@ -26,6 +26,14 @@
 5. Tarjeta en **Hui**: si hay una cita en los próximos 7 días o alguna `perDemanar` con recordatorio vencido, mostrar arriba del todo una `Targeta` roja de aviso que lleva a Metges.
 6. Al volver la app a primer plano, reprogramar avisos de todas las citas futuras (por si se crearon desde otro dispositivo): en `Arrencada.enTornarAlPrimerPla`.
 
+## Alarmas de verdad con AlarmKit (iOS 26+) ⏰
+Usa la skill `alarmkit`. Además de las notificaciones, ofrece en `EditaCita` un toggle **"Alarma de despertador"** (activado por defecto para el aviso más cercano, p. ej. 2 h antes):
+- `AlarmManager` programa una alarma de sistema que suena aunque el móvil esté en silencio, con pantalla completa, Dynamic Island y Apple Watch.
+- Título: "🚨 \(cita.titol)", botón secundario "Ja vaig! 🏃‍♀️" que abre la app en Metges.
+- Sonido: `sirena.wav` si AlarmKit permite sonido personalizado; si no, el del sistema.
+- Pide autorización (`NSAlarmKitUsageDescription` en `project.yml`: "Perquè no se t'oblide cap metge, Mariapp pot posar alarmes de despertador.").
+- Al editar/borrar la cita, cancela la alarma (guarda su id en un campo nuevo opcional `alarmaId` de `Cita`).
+
 ## Aceptación
 - Crear cita "por pedir" con recordatorio → llega la notificación con sirena.
 - Crear cita programada con 3 avisos → 3 notificaciones pendientes (`getPendingNotificationRequests`) + evento en calendario con alarmas.

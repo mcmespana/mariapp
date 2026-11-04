@@ -1,6 +1,6 @@
 # Instrucciones para agentes (Claude)
 
-App nativa SwiftUI para iOS 18+ y macOS 15+ (un único target multiplataforma) + extensión de widgets iOS.
+App nativa SwiftUI para **iOS 27+ y macOS 27+** (un único target multiplataforma) + extensión de widgets iOS.
 El proyecto Xcode se genera con **XcodeGen** desde `project.yml` (no hay `.xcodeproj` en git).
 
 ## Reglas
@@ -11,7 +11,7 @@ El proyecto Xcode se genera con **XcodeGen** desde `project.yml` (no hay `.xcode
    (`Targeta`, `CapcaleraTargeta`, `BotoSuau`, `BotoRodo`, `Xip`, `IconaClay`, `BolaClay`, `.clay(color, ple:)`, `.fonsMariapp()`)
    y los colores de `Shared/Paleta.swift`. Nada de fondos planos con `RoundedRectangle().fill(...)`: si algo es tocable o es una superficie, es plastilina (`.clay`).
    Animaciones: `Clay.molla` (sin rebote) por defecto y `Clay.mollaJuganera` solo al soltar/confirmar. Respeta `accessibilityReduceMotion`.
-   Botones de solo icono siempre con título (`Button("Títol", systemImage:)` + `.labelStyle(.iconOnly)`), mínimo 44×44 pt. Fondo crema, mucha calma. **Prohibido rosa y rojo**, salvo `Paleta.alerta` en la sección Metges.
+   Botones de solo icono con título (`Button("Títol", systemImage:)` + `.labelStyle(.iconOnly)`), mínimo 44×44 pt. (Accesibilidad avanzada no es prioridad: no hace falta trabajar VoiceOver ni Reduce Motion más allá de lo existente.) Fondo crema, mucha calma. **Prohibido rosa y rojo**, salvo `Paleta.alerta` en la sección Metges.
    Títulos con `.titolGran()` (serif); texto con diseño `.rounded`. Añade `sensoryFeedback`, animaciones `spring` y `Sons.toca(...)` donde aporte.
 3. **Datos**: todo lo que se sincroniza es un `Registre` (ver `Mariapp/Data/Models.swift`) y vive en una `Coleccio<T>` de `DataStore`.
    - Campos nuevos: **opcionales o con valor por defecto en `init(from:)`** (los documentos antiguos no los tienen).
@@ -24,8 +24,12 @@ El proyecto Xcode se genera con **XcodeGen** desde `project.yml` (no hay `.xcode
    Hasta que esté en verde, la tarea no está terminada. Para ver errores: logs del job, paso "Errors".
 8. Commits pequeños, en castellano, uno por plan o sub-parte.
 
-## Skills instaladas
-En `.claude/skills/`: `apple-design` (movimiento y principios Apple), `swiftui-pro` (revisión de SwiftUI; **ojo**: asume iOS 27, aquí el objetivo es iOS 18 y el CI usa Xcode 26.3, no uses APIs de iOS 27) y `write-swift` (Swift moderno; seguimos en modo Swift 5).
+## Skills instaladas (`.claude/skills/`) — úsalas
+- Diseño y SwiftUI: `apple-design`, `swiftui-pro` (iOS 27 es el objetivo: sus APIs están permitidas), `swiftui-animation`, `swiftui-liquid-glass`, `swift-charts`.
+- Swift: `write-swift` (seguimos en modo Swift 5 por ahora), `swift-testing-pro` (plan 09).
+- Sistema: `widgetkit`, `activitykit`, `app-intents`, `push-notifications`, `eventkit` (plan 03), `alarmkit` (plan 02), `tipkit`, `healthkit` (ideas).
+- Firebase: `firebase-security-rules-auditor` (revisar `firebase/firestore.rules`).
+Antes de tocar una de esas áreas, carga la skill correspondiente.
 
 ## Mapa
 
