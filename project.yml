@@ -6,8 +6,8 @@ options:
   developmentLanguage: ca
   createIntermediateGroups: true
   deploymentTarget:
-    iOS: "18.0"
-    macOS: "15.0"
+    iOS: "27.0"
+    macOS: "27.0"
 configFiles:
   Debug: Config/Mariapp.xcconfig
   Release: Config/Mariapp.xcconfig
