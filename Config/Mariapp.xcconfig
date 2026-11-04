@@ -1,0 +1,12 @@
+// ────────────────────────────────────────────────────────────────
+//  Configuració de signatura i identificadors.
+//  1) Posa el teu Team ID d'Apple (developer.apple.com → Membership).
+//  2) Si canvies el bundle id, canvia també l'App Group (ha de començar per "group.").
+// ────────────────────────────────────────────────────────────────
+DEVELOPMENT_TEAM =
+CODE_SIGN_STYLE = Automatic
+MARIAPP_BUNDLE_ID = es.mariapp.app
+MARIAPP_APP_GROUP = group.es.mariapp.app
+
+// Permet sobreescriure-ho en local sense tocar git (fitxer ignorat).
+#include? "Local.xcconfig"

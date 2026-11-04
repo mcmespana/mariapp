@@ -1,0 +1,12 @@
+# Xcode (el projecte es genera amb XcodeGen)
+*.xcodeproj/
+*.xcworkspace/
+!*.xcodeproj/project.xcworkspace/
+DerivedData/
+build/
+xcuserdata/
+*.xcuserstate
+.swiftpm/
+.build/
+Config/Local.xcconfig
+.DS_Store
