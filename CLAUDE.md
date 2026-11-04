@@ -17,7 +17,7 @@ El proyecto Xcode se genera con **XcodeGen** desde `project.yml` (no hay `.xcode
    - Campos nuevos: **opcionales o con valor por defecto en `init(from:)`** (los documentos antiguos no los tienen).
    - Contadores: usar `fusiona`/`suma` (operaciones atómicas), nunca leer-modificar-escribir.
    - Nueva colección: añadir la `Coleccio` en `DataStore` y conectarla en `connecta(_:)`.
-4. **Roles**: `Preferencies.shared.rol` (`.maria` / `.david`). David (invitado) lo ve todo; las notificaciones personales solo en el dispositivo de María.
+4. **Roles**: `Preferencies.shared.rol` (`.maria` / `.david`). David (invitado) lo ve y lo edita todo, también el Hui de María; las notificaciones personales solo en el dispositivo de María.
 5. **Multiplataforma**: el código del target `Mariapp` compila en iOS **y** macOS. Envuelve UIKit/ActivityKit/modificadores solo-iOS con `#if os(iOS)`.
 6. **Concurrencia**: Swift 5 mode. No añadas `@MainActor` a clases enteras sin necesidad.
 7. **Verificación**: no se puede compilar en Linux. Haz push a la rama y revisa el workflow **"Compila Mariapp"** (GitHub Actions, macOS).
