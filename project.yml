@@ -78,6 +78,8 @@ targets:
         destinationFilters: [iOS]
       - target: MariappWidgetsMac
         destinationFilters: [macOS]
+      - target: MariappWatch
+        destinationFilters: [iOS]
   MariappWidgets:
     type: app-extension
     platform: iOS
