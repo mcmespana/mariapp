@@ -32,6 +32,7 @@ struct HuiView: View {
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 32)
+            .ampleMaxim(1100)
         }
         .fonsMariapp()
         .toolbar {

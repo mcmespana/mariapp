@@ -1,4 +1,5 @@
 import SwiftUI
+import UserNotifications
 
 struct AjustosView: View {
     @Environment(DataStore.self) private var store
@@ -11,6 +12,7 @@ struct AjustosView: View {
     @State private var clauIA = ServeiIA.clau ?? ""
     @State private var provaIA: String?
     @State private var provantIA = false
+    @State private var permisAvisos: UNAuthorizationStatus?
 
     var body: some View {
         @Bindable var prefs = prefs
@@ -41,6 +43,7 @@ struct AjustosView: View {
 
                 Section {
                     Toggle("Avisos actius", isOn: $prefs.avisosActius)
+                    permisNotificacions
                     DatePicker("Pregunta pel cansament", selection: Binding(get: { prefs.horaCansament.comData }, set: { prefs.horaCansament = Hora($0) }), displayedComponents: .hourAndMinute)
                     ForEach(prefs.horesAigua.sorted()) { hora in
                         HStack {
@@ -129,10 +132,35 @@ struct AjustosView: View {
             .listRowBackground(Paleta.paper)
         }
         .formStyle(.grouped)
+        .ampleMaxim(640)
         .fonsMariapp()
         .navigationTitle("Ajustos")
         .onAppear {
             if let c = nav.codiInvitacio { codi = c }
+        }
+    }
+
+    @ViewBuilder
+    private var permisNotificacions: some View {
+        LabeledContent("Permís de notificacions") {
+            switch permisAvisos {
+            case .authorized, .provisional, .ephemeral: Text("✅ Concedit")
+            case .denied: Text("⚠️ Denegat")
+            case .notDetermined: Text("Sense demanar")
+            default: Text("…")
+            }
+        }
+        .task { permisAvisos = await Avisos.estatPermis() }
+        if permisAvisos == .notDetermined {
+            Button("Demanar permís") {
+                Task {
+                    _ = await Avisos.demanaPermis()
+                    permisAvisos = await Avisos.estatPermis()
+                    Avisos.reprograma()
+                }
+            }
+        } else if permisAvisos == .denied {
+            Button("Obrir els ajustos de notificacions") { Avisos.obriAjustosNotificacions() }
         }
     }
 

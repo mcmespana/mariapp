@@ -1,5 +1,10 @@
 import Foundation
 import UserNotifications
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 /// Notificacions locals. Només es programen les "rutines" al dispositiu de la Maria.
 enum Avisos {
@@ -59,6 +64,20 @@ enum Avisos {
 
     static func demanaPermis() async -> Bool {
         (try? await centre.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
+    }
+
+    static func estatPermis() async -> UNAuthorizationStatus {
+        await centre.notificationSettings().authorizationStatus
+    }
+
+    /// Obri els ajustos de notificacions del sistema (iPhone: els de l'app; Mac: Notificacions).
+    @MainActor
+    static func obriAjustosNotificacions() {
+        #if canImport(UIKit)
+        if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+        #elseif canImport(AppKit)
+        if let url = URL(string: "x-apple.systempreferences:com.apple.Notifications-Settings.extension") { NSWorkspace.shared.open(url) }
+        #endif
     }
 
     // MARK: Rutines diàries

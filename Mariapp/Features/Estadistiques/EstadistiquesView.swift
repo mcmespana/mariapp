@@ -168,6 +168,7 @@ struct EstadistiquesView: View {
                 }
             }
             .padding(16)
+            .ampleMaxim(1100)
         }
         .fonsMariapp()
         .navigationTitle("Estadístiques")
