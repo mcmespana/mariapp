@@ -1,0 +1,56 @@
+name: Compila Mariapp
+
+# Compila l'app per a iOS (simulador) i macOS sense signar, per a comprovar que tot el codi és correcte.
+# Nota: els runners de macOS gasten minuts de GitHub Actions x10 en repos privats.
+on:
+  push:
+    branches: [main, "claude/**"]
+    paths: ["Mariapp/**", "MariappWidgets/**", "Shared/**", "project.yml", "Config/**", ".github/workflows/build.yml"]
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tria l'Xcode més nou
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - name: Versions disponibles
+        run: ls /Applications | grep -i xcode; xcodebuild -version; xcodebuild -showsdks | grep -iE "ios|macos"
+      - name: Instal·la XcodeGen
+        run: brew install xcodegen
+      - name: Genera el projecte
+        run: xcodegen generate
+      - name: Cache de paquets SPM
+        uses: actions/cache@v4
+        with:
+          path: ~/spm-cache
+          key: spm-${{ hashFiles('project.yml') }}
+      - name: Compila iOS (simulador)
+        run: |
+          set -o pipefail
+          xcodebuild -project Mariapp.xcodeproj -scheme Mariapp \
+            -destination 'generic/platform=iOS Simulator' \
+            -clonedSourcePackagesDirPath ~/spm-cache \
+            -skipMacroValidation -skipPackagePluginValidation \
+            CODE_SIGNING_ALLOWED=NO build | tee ios.log | grep -E "error:|warning: .*Mariapp|BUILD" || true
+          grep -q "BUILD SUCCEEDED" ios.log
+      - name: Compila macOS
+        run: |
+          set -o pipefail
+          xcodebuild -project Mariapp.xcodeproj -scheme Mariapp \
+            -destination 'generic/platform=macOS' \
+            -clonedSourcePackagesDirPath ~/spm-cache \
+            -skipMacroValidation -skipPackagePluginValidation \
+            CODE_SIGNING_ALLOWED=NO build | tee macos.log | grep -E "error:|BUILD" || true
+          grep -q "BUILD SUCCEEDED" macos.log
+      - name: Errors (si n'hi ha)
+        if: failure()
+        run: grep -h -B2 -A6 "error:" ios.log macos.log | head -300 || true

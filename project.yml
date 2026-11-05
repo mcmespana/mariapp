@@ -1,0 +1,106 @@
+# Projecte generat amb XcodeGen (https://github.com/yonaskolb/XcodeGen)
+# No edites Mariapp.xcodeproj a mà: canvia aquest fitxer i executa ./scripts/obre-xcode.sh
+name: Mariapp
+options:
+  bundleIdPrefix: es.mariapp
+  developmentLanguage: ca
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "26.0"
+    macOS: "26.0"
+configFiles:
+  Debug: Config/Mariapp.xcconfig
+  Release: Config/Mariapp.xcconfig
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES
+packages:
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    from: "11.0.0"
+targets:
+  Mariapp:
+    type: application
+    supportedDestinations: [iOS, macOS]
+    sources:
+      - path: Mariapp
+      - path: Shared
+    info:
+      path: Config/Mariapp-Info.plist
+      properties:
+        CFBundleDisplayName: Mariapp
+        CFBundleDevelopmentRegion: ca
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        ITSAppUsesNonExemptEncryption: false
+        LSApplicationCategoryType: public.app-category.healthcare-fitness
+        UILaunchScreen:
+          UIColorName: Crema
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        NSSupportsLiveActivities: true
+        NSCalendarsFullAccessUsageDescription: "Mariapp llig el calendari compartit per a posar-li emojis, colors i avisos als esdeveniments, i per a apuntar-hi les cites del metge."
+        NSCalendarsWriteOnlyAccessUsageDescription: "Mariapp apunta les cites del metge al calendari."
+        CFBundleURLTypes:
+          - CFBundleURLName: es.mariapp.app
+            CFBundleURLSchemes: [mariapp]
+        MariappAppGroup: $(MARIAPP_APP_GROUP)
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(MARIAPP_BUNDLE_ID)
+        PRODUCT_NAME: Mariapp
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        CODE_SIGN_ENTITLEMENTS: Config/Mariapp-iOS.entitlements
+        "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": Config/Mariapp-macOS.entitlements
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SUPPORTS_MACCATALYST: NO
+        ENABLE_HARDENED_RUNTIME: YES
+        OTHER_LDFLAGS: ["-ObjC"]
+    dependencies:
+      - package: Firebase
+        product: FirebaseAuth
+      - package: Firebase
+        product: FirebaseFirestore
+      - target: MariappWidgets
+        destinationFilters: [iOS]
+  MariappWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: MariappWidgets
+      - path: Shared
+    info:
+      path: Config/MariappWidgets-Info.plist
+      properties:
+        CFBundleDisplayName: Mariapp
+        CFBundleDevelopmentRegion: ca
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        MariappAppGroup: $(MARIAPP_APP_GROUP)
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(MARIAPP_BUNDLE_ID).widgets
+        PRODUCT_NAME: MariappWidgets
+        CODE_SIGN_ENTITLEMENTS: Config/MariappWidgets.entitlements
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SKIP_INSTALL: YES
+schemes:
+  Mariapp:
+    build:
+      targets:
+        Mariapp: all
+    run:
+      config: Debug
+    archive:
+      config: Release

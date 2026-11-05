@@ -1,0 +1,34 @@
+rules_version = '2';
+
+// Mariapp: cada "llar" té una llista de membres (usuaris anònims de Firebase).
+// Només els membres poden llegir/escriure les dades de la llar.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function esMembre(llarId) {
+      return request.auth != null
+        && request.auth.uid in get(/databases/$(database)/documents/llars/$(llarId)).data.membres;
+    }
+
+    match /llars/{llarId} {
+      // Crear una llar nova: un mateix com a únic membre.
+      allow create: if request.auth != null
+        && request.resource.data.membres == [request.auth.uid];
+
+      allow read: if esMembre(llarId);
+
+      // Unir-se amb el codi: només es pot afegir un mateix a la llista.
+      allow update: if request.auth != null
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['membres'])
+        && request.resource.data.membres.hasAll(resource.data.membres)
+        && (
+          request.auth.uid in resource.data.membres
+          || request.resource.data.membres.toSet().difference(resource.data.membres.toSet()) == [request.auth.uid].toSet()
+        );
+
+      match /{colleccio}/{document} {
+        allow read, write: if esMembre(llarId);
+      }
+    }
+  }
+}
