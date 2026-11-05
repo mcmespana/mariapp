@@ -42,11 +42,23 @@ enum ServeiAlarmes {
         let quan = data.addingTimeInterval(TimeInterval(-minuts * 60))
         guard quan > Date(), await demanaPermis() else { return nil }
 
-        let alerta = AlarmPresentation.Alert(
-            title: "🚨 \(cita.titol)",
-            secondaryButton: AlarmButton(text: "Ja vaig! 🏃‍♀️", textColor: .white, systemImageName: "figure.run"),
-            secondaryButtonBehavior: .custom
-        )
+        let jaVaig = AlarmButton(text: "Ja vaig! 🏃‍♀️", textColor: .white, systemImageName: "figure.run")
+        let alerta: AlarmPresentation.Alert
+        if #available(iOS 26.1, *) {
+            alerta = AlarmPresentation.Alert(
+                title: "🚨 \(cita.titol)",
+                secondaryButton: jaVaig,
+                secondaryButtonBehavior: .custom
+            )
+        } else {
+            // iOS 26.0 encara demana el botó d'aturar a l'alerta.
+            alerta = AlarmPresentation.Alert(
+                title: "🚨 \(cita.titol)",
+                stopButton: AlarmButton(text: "Para", textColor: .white, systemImageName: "stop.circle"),
+                secondaryButton: jaVaig,
+                secondaryButtonBehavior: .custom
+            )
+        }
         let atributs = AlarmAttributes<MetadadesAlarma>(
             presentation: AlarmPresentation(alert: alerta),
             metadata: nil,
