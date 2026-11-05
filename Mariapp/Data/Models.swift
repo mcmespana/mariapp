@@ -236,6 +236,10 @@ struct Cita: Registre {
     var recordarDemanarEl: Date?
     /// eventIdentifier de l'esdeveniment creat al calendari (si n'hi ha).
     var esdevenimentId: String?
+    /// Alarma de despertador (AlarmKit): minuts abans de la cita en què sona. nil = sense alarma.
+    var alarmaMinuts: Int?
+    /// Identificador de l'alarma de sistema programada (només té sentit al dispositiu de la Maria).
+    var alarmaId: String?
     var creat: Date = Date()
 
     init(titol: String) { self.titol = titol }
@@ -253,6 +257,8 @@ struct Cita: Registre {
         avisos = try c.decodeIfPresent([Int].self, forKey: .avisos) ?? [1440, 120]
         recordarDemanarEl = try c.decodeIfPresent(Date.self, forKey: .recordarDemanarEl)
         esdevenimentId = try c.decodeIfPresent(String.self, forKey: .esdevenimentId)
+        alarmaMinuts = try c.decodeIfPresent(Int.self, forKey: .alarmaMinuts)
+        alarmaId = try c.decodeIfPresent(String.self, forKey: .alarmaId)
         creat = try c.decodeIfPresent(Date.self, forKey: .creat) ?? Date()
     }
 }

@@ -46,6 +46,8 @@ enum Arrencada {
         // Puja el que s'haja apuntat des del widget mentre l'app estava tancada.
         DataStore.shared.processa(CuaAccions.buida())
         ServeiCalendari.shared.recarrega()
+        // Per si s'han creat o canviat cites des d'un altre dispositiu.
+        ServeiCites.reprograma()
         #if os(iOS)
         if Preferencies.shared.esMaria, Preferencies.shared.activitatEnDirecte {
             let hora = Calendar.current.component(.hour, from: Date())

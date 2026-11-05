@@ -69,12 +69,14 @@ final class DataStore {
 
     @ObservationIgnored private(set) var backend: SyncBackend = LocalBackend.shared
     @ObservationIgnored private var sembrantPlats = false
+    @ObservationIgnored private var citesReprogramades = false
 
     private init() {
         dies.enCanviar = { [weak self] in self?.actualitzaSnapshot() }
         configs.enCanviar = { [weak self] in self?.actualitzaSnapshot() }
         categoriesMetge.enCanviar = { [weak self] in self?.sembraCategoriesSiCal() }
         plats.enCanviar = { [weak self] in self?.sembraPlatsSiCal() }
+        cites.enCanviar = { [weak self] in self?.reprogramaCitesLaPrimeraVegada() }
         connecta(LocalBackend.shared)
     }
 
@@ -170,6 +172,13 @@ final class DataStore {
     }
 
     // MARK: Metges
+
+    /// Quan arriben les cites per primera vegada en arrancar, es reprograma tot (avisos i alarmes).
+    private func reprogramaCitesLaPrimeraVegada() {
+        guard cites.carregada, !citesReprogramades else { return }
+        citesReprogramades = true
+        ServeiCites.reprograma()
+    }
 
     private func sembraCategoriesSiCal() {
         guard categoriesMetge.carregada, categoriesMetge.items.isEmpty else { return }

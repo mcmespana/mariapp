@@ -49,6 +49,7 @@ targets:
         NSSupportsLiveActivities: true
         NSCalendarsFullAccessUsageDescription: "Mariapp llig el calendari compartit per a posar-li emojis, colors i avisos als esdeveniments, i per a apuntar-hi les cites del metge."
         NSCalendarsWriteOnlyAccessUsageDescription: "Mariapp apunta les cites del metge al calendari."
+        NSAlarmKitUsageDescription: "Perquè no se t'oblide cap metge, Mariapp pot posar alarmes de despertador."
         CFBundleURLTypes:
           - CFBundleURLName: es.mariapp.app
             CFBundleURLSchemes: [mariapp]

@@ -4,7 +4,7 @@ Cada plan es autocontenido. Antes de empezar, lee `CLAUDE.md` y `docs/ARQUITECTU
 Definición de "hecho": el workflow **Compila Mariapp** en verde + criterios de aceptación del plan cumplidos + casilla marcada aquí.
 
 - [x] [01 — Menú setmanal](01-menu-setmanal.md) ⭐ prioridad
-- [ ] [02 — Metges](02-metges.md) ⭐
+- [x] [02 — Metges](02-metges.md) ⭐
 - [ ] [03 — Calendari compartit](03-calendari.md)
 - [ ] [04 — IA: sugerencias y análisis](04-ia.md)
 - [ ] [05 — Llista de la compra](05-llista-compra.md)

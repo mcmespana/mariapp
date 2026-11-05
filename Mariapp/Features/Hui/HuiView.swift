@@ -18,6 +18,7 @@ struct HuiView: View {
                             .foregroundStyle(Paleta.tinta)
                     }
                 }
+                TargetaAvisMetges()
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 320), spacing: 16, alignment: .top)], spacing: 16) {
                     TargetaAigua(dia: dia)
                     TargetaCansament(dia: dia)
