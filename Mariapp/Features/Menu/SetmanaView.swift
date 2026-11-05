@@ -17,6 +17,7 @@ struct SetmanaView: View {
     @State private var forat: Forat?
     @State private var veuPlat: IdPlat?
     @State private var celebra = 0
+    @State private var afegitsCompra: Int?
 
     private var idSetmana: String { MenuSetmana.id(per: inici) }
     private var menu: MenuSetmana { store.menus[idSetmana] ?? MenuSetmana(id: idSetmana) }
@@ -43,12 +44,15 @@ struct SetmanaView: View {
                         }
                     }
                     accions
+                    avisCompra
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, 32)
             }
         }
         .animation(Clay.molla, value: menu.apats)
+        .animation(Clay.molla, value: afegitsCompra)
+        .onChange(of: inici) { _, _ in afegitsCompra = nil }
         .sensoryFeedback(.success, trigger: celebra)
         .sheet(item: $forat) { f in
             TriaPlat(
@@ -118,6 +122,33 @@ struct SetmanaView: View {
             }
             .buttonStyle(.suau(Paleta.verd))
             .disabled(anterior == nil)
+
+            Button {
+                afegitsCompra = LlistaCompra.genera(des: menu)
+                celebra += 1
+            } label: {
+                Label("Generar llista", systemImage: "cart.badge.plus")
+            }
+            .buttonStyle(.suau(Paleta.verd))
+            .disabled(menu.platIds.isEmpty)
+        }
+    }
+
+    @ViewBuilder
+    private var avisCompra: some View {
+        if let n = afegitsCompra {
+            Targeta(tint: Paleta.verd) {
+                Text(n == 0 ? "🛒 No falta res nou: tot el que cal ja és a la llista o el tenim." : "🛒 He afegit \(n) \(n == 1 ? "cosa" : "coses") a la llista de la compra.")
+                    .font(.system(.subheadline, design: .rounded))
+                    .foregroundStyle(Paleta.tinta)
+                NavigationLink {
+                    LlistaCompraView()
+                } label: {
+                    Label("Veure la llista", systemImage: "cart.fill")
+                }
+                .buttonStyle(.suau(Paleta.verd, ple: true))
+            }
+            .transition(.scale.combined(with: .opacity))
         }
     }
 

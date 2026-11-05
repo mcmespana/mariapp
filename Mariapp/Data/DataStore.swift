@@ -66,6 +66,7 @@ final class DataStore {
     let cites = Coleccio<Cita>()
     let pensaments = Coleccio<Pensament>()
     let anotacions = Coleccio<AnotacioEsdeveniment>()
+    let llistaCompra = Coleccio<ElementCompra>()
 
     @ObservationIgnored private(set) var backend: SyncBackend = LocalBackend.shared
     @ObservationIgnored private var sembrantPlats = false
@@ -92,6 +93,7 @@ final class DataStore {
         cites.connecta(backend)
         pensaments.connecta(backend)
         anotacions.connecta(backend)
+        llistaCompra.connecta(backend)
     }
 
     // MARK: Configuració

@@ -28,5 +28,14 @@ struct MenuView: View {
         .fonsMariapp()
         .navigationTitle("Menú")
         .sensoryFeedback(.selection, trigger: pestanya)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                NavigationLink {
+                    LlistaCompraView()
+                } label: {
+                    Label("Llista de la compra", systemImage: "cart")
+                }
+            }
+        }
     }
 }

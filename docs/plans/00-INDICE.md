@@ -7,7 +7,7 @@ Definición de "hecho": el workflow **Compila Mariapp** en verde + criterios de 
 - [x] [02 — Metges](02-metges.md) ⭐
 - [x] [03 — Calendari compartit](03-calendari.md)
 - [x] [04 — IA: sugerencias y análisis](04-ia.md)
-- [ ] [05 — Llista de la compra](05-llista-compra.md)
+- [x] [05 — Llista de la compra](05-llista-compra.md)
 - [ ] [06 — Pulido macOS](06-macos.md)
 - [ ] [07 — Widgets extra](07-widgets.md)
 - [ ] [08 — TestFlight automático](08-testflight-automatico.md)

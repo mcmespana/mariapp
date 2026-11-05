@@ -2,7 +2,7 @@ import SwiftUI
 import Observation
 
 enum Seccio: String, CaseIterable, Identifiable, Hashable {
-    case hui, calendari, menu, metges, estadistiques, david, fills, ajustos
+    case hui, calendari, menu, metges, compra, estadistiques, david, fills, ajustos
 
     var id: String { rawValue }
 
@@ -12,6 +12,7 @@ enum Seccio: String, CaseIterable, Identifiable, Hashable {
         case .calendari: "Calendari"
         case .menu: "Menú"
         case .metges: "Metges"
+        case .compra: "Compra"
         case .estadistiques: "Estadístiques"
         case .david: "David"
         case .fills: NomFills.dHui
@@ -25,6 +26,7 @@ enum Seccio: String, CaseIterable, Identifiable, Hashable {
         case .calendari: "calendar"
         case .menu: "fork.knife"
         case .metges: "cross.case.fill"
+        case .compra: "cart.fill"
         case .estadistiques: "chart.bar.xaxis"
         case .david: "heart.text.square.fill"
         case .fills: "sparkles"
@@ -38,6 +40,7 @@ enum Seccio: String, CaseIterable, Identifiable, Hashable {
         case .calendari: Paleta.blau
         case .menu: Paleta.verd
         case .metges: Paleta.alerta
+        case .compra: Paleta.verd
         case .estadistiques: Paleta.aigua
         case .david: Paleta.taronja
         case .fills: Paleta.groc
@@ -47,7 +50,7 @@ enum Seccio: String, CaseIterable, Identifiable, Hashable {
 
     /// Les que van a la barra de pestanyes de l'iPhone. La resta, a "Més".
     static let principals: [Seccio] = [.hui, .calendari, .menu, .metges]
-    static let secundaries: [Seccio] = [.estadistiques, .david, .fills, .ajustos]
+    static let secundaries: [Seccio] = [.compra, .estadistiques, .david, .fills, .ajustos]
 }
 
 /// El nom de la secció de fills canvia cada dia. Perquè sí.
