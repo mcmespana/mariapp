@@ -14,12 +14,12 @@ Definición de "hecho": el workflow **Compila Mariapp** en verde + criterios de 
 - [x] [09 — Tests](09-tests.md)
 
 ### Segunda tanda
-- [ ] [10 — Resum setmanal](10-resum-setmanal.md) ⭐
-- [ ] [11 — Creuar dades (aigua ↔ molèsties)](11-creuar-dades.md)
-- [ ] [12 — Receptes del món amb IA](12-receptes-ia.md) ⭐
-- [ ] [13 — Widget de la compra](13-widget-compra.md)
-- [ ] [14 — Apple Salut (HealthKit)](14-healthkit.md)
-- [ ] [15 — Apple Watch](15-apple-watch.md) ⭐ (después del 13 y del 14)
+- [x] [10 — Resum setmanal](10-resum-setmanal.md) ⭐
+- [x] [11 — Creuar dades (aigua ↔ molèsties)](11-creuar-dades.md)
+- [x] [12 — Receptes del món amb IA](12-receptes-ia.md) ⭐
+- [x] [13 — Widget de la compra](13-widget-compra.md)
+- [x] [14 — Apple Salut (HealthKit)](14-healthkit.md)
+- [x] [15 — Apple Watch](15-apple-watch.md) ⭐ (hecho; embebido en la app de iOS)
 
 Reglas comunes de esta tanda: campos nuevos opcionales (`init(from:)`), lógica pura en funciones testeables con tests en `MariappTests/`, y añadir las carpetas nuevas a `paths` de `.github/workflows/build.yml`.
 

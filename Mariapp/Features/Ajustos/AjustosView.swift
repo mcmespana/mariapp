@@ -63,6 +63,10 @@ struct AjustosView: View {
                     if prefs.avisGimnas {
                         DatePicker("Hora del gimnàs", selection: Binding(get: { prefs.horaGimnas.comData }, set: { prefs.horaGimnas = Hora($0) }), displayedComponents: .hourAndMinute)
                     }
+                    Toggle("Resum de la setmana (diumenge) 📊", isOn: $prefs.resumSetmanal)
+                    if prefs.resumSetmanal {
+                        DatePicker("Hora del resum", selection: Binding(get: { prefs.horaResum.comData }, set: { prefs.horaResum = Hora($0) }), displayedComponents: .hourAndMinute)
+                    }
                     Toggle("Sonets divertits", isOn: $prefs.sonsActius)
                     #if os(iOS)
                     Toggle("Aigua i cafés a la pantalla de bloqueig", isOn: $prefs.activitatEnDirecte)
@@ -74,6 +78,12 @@ struct AjustosView: View {
                 }
                 .listRowBackground(Paleta.paper)
             }
+
+            #if os(iOS)
+            if prefs.esMaria {
+                SeccioSalut()
+            }
+            #endif
 
             Section {
                 if calendari.autoritzat {

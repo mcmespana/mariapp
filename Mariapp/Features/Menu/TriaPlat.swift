@@ -17,6 +17,7 @@ struct TriaPlat: View {
     @State private var etiquetes: Set<EtiquetaPlat> = []
     @State private var textLliure = ""
     @State private var suggerits: [Plat] = []
+    @State private var receptesMon = false
 
     private var filtrats: [Plat] {
         store.plats.items
@@ -39,6 +40,14 @@ struct TriaPlat: View {
                         alTriar(EntradaMenu(platId: plat.id))
                         dismiss()
                     }
+
+                    Button {
+                        receptesMon = true
+                    } label: {
+                        Label("🌍 Receptes del món", systemImage: "globe.europe.africa.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.suau(Paleta.verd))
 
                     filtres
 
@@ -92,6 +101,12 @@ struct TriaPlat: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Tanca") { dismiss() }
+                }
+            }
+            .sheet(isPresented: $receptesMon) {
+                ReceptesMonView { plat in
+                    alTriar(EntradaMenu(platId: plat.id))
+                    dismiss()
                 }
             }
             .onAppear {

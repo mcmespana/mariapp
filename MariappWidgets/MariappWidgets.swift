@@ -8,6 +8,7 @@ struct MariappWidgets: WidgetBundle {
         CitaWidget()
         MenuWidget()
         CansamentWidget()
+        CompraWidget()
         HuiLiveActivity()
         AiguaControl()
         CafeControl()

@@ -39,3 +39,7 @@ Notas:
 - Los runners de macOS gastan minutos ×10 en repos privados; cada subida ronda 10–15 min por plataforma.
 - La primera vez Apple puede tardar en crear los perfiles de aprovisionamiento (App Group `group.es.mariapp.app` incluido); si falla, abre el proyecto una vez en Xcode con tu cuenta para que se registren los identificadores.
 - Alternativa sin secretos en GitHub: **Xcode Cloud** (Xcode → Product → Xcode Cloud; 25 h/mes gratis).
+
+## Capacidades nuevas (planes 14 y 15)
+- **HealthKit**: el entitlement `com.apple.developer.healthkit` está en `Config/Mariapp-iOS.entitlements`. Con firma automática y la clave de API, Apple lo añade al identificador de la app; si el archivado se queja, abre el proyecto una vez en Xcode (*Signing & Capabilities*) para registrarlo.
+- **Apple Watch**: el reloj (`es.mariapp.app.watchkitapp`) y sus complicaciones (`…watchkitapp.widgets`) comparten el App Group `group.es.mariapp.app`. Los identificadores se crean igual que los de los widgets del iPhone.

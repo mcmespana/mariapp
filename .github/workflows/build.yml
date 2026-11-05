@@ -5,7 +5,7 @@ name: Compila Mariapp
 on:
   push:
     branches: [main, "claude/**"]
-    paths: ["Mariapp/**", "MariappWidgets/**", "MariappWidgetsMac/**", "WidgetsComuns/**", "MariappTests/**", "Shared/**", "project.yml", "Config/**", ".github/workflows/build.yml"]
+    paths: ["Mariapp/**", "MariappWidgets/**", "MariappWidgetsMac/**", "WidgetsComuns/**", "MariappTests/**", "MariappWatch/**", "MariappWatchWidgets/**", "Shared/**", "project.yml", "Config/**", ".github/workflows/build.yml"]
   workflow_dispatch:
 
 concurrency:
@@ -23,7 +23,7 @@ jobs:
         with:
           xcode-version: latest-stable
       - name: Versions disponibles
-        run: ls /Applications | grep -i xcode; xcodebuild -version; xcodebuild -showsdks | grep -iE "ios|macos"
+        run: ls /Applications | grep -i xcode; xcodebuild -version; xcodebuild -showsdks | grep -iE "ios|macos|watchos"
       - name: Instal·la XcodeGen
         run: brew install xcodegen
       - name: Genera el projecte
@@ -51,6 +51,17 @@ jobs:
             -skipMacroValidation -skipPackagePluginValidation \
             CODE_SIGNING_ALLOWED=NO build | tee macos.log | grep -E "error:|BUILD" || true
           grep -q "BUILD SUCCEEDED" macos.log
+      - name: Compila watchOS (simulador)
+        run: |
+          set -o pipefail
+          # Si el runner no porta el SDK de watchOS, el baixem.
+          if ! xcodebuild -showsdks | grep -qi watchsimulator; then xcodebuild -downloadPlatform watchOS; fi
+          xcodebuild -project Mariapp.xcodeproj -scheme MariappWatch \
+            -destination 'generic/platform=watchOS Simulator' \
+            -clonedSourcePackagesDirPath ~/spm-cache \
+            -skipMacroValidation -skipPackagePluginValidation \
+            CODE_SIGNING_ALLOWED=NO build | tee watch.log | grep -E "error:|BUILD" || true
+          grep -q "BUILD SUCCEEDED" watch.log
       - name: Tests (simulador d'iPhone)
         run: |
           set -o pipefail
@@ -65,4 +76,4 @@ jobs:
           grep -q "TEST SUCCEEDED" test.log
       - name: Errors (si n'hi ha)
         if: failure()
-        run: grep -h -B2 -A6 "error:" ios.log macos.log test.log | head -300 || true
+        run: grep -h -B2 -A6 "error:" ios.log macos.log watch.log test.log | head -300 || true

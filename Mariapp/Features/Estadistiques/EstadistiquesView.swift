@@ -3,6 +3,7 @@ import SwiftUI
 
 struct EstadistiquesView: View {
     @Environment(DataStore.self) private var store
+    @Environment(Navegacio.self) private var nav
     @State private var mesos = 6
 
     var body: some View {
@@ -32,6 +33,7 @@ struct EstadistiquesView: View {
                     resums: resums,
                     cafes: Analisi.cafesVsCansament(dies),
                     diaSetmana: Analisi.cansamentPerDiaSetmana(dies),
+                    creuaments: Analisi.creuamentsPerIA(dies, escala: escala),
                     escala: escala,
                     objectiuMl: store.config.objectiuMl
                 ))
@@ -145,6 +147,13 @@ struct EstadistiquesView: View {
                         .frame(height: 150)
                     }
 
+                    // Creuaments
+                    TargetaAiguaMolesties(dies: dies)
+                    TargetaCafesMolesties(dies: dies)
+                    TargetaGimnasCansament(dies: dies, escala: escala)
+                    TargetaSon(resums: resums)
+                    TargetaSonCansament(dies: dies, escala: escala)
+
                     // Queixes
                     Targeta(tint: Paleta.taronja) {
                         CapcaleraTargeta(icona: "exclamationmark.bubble.fill", titol: "Queixes sobre David", color: Paleta.taronja)
@@ -172,6 +181,12 @@ struct EstadistiquesView: View {
         }
         .fonsMariapp()
         .navigationTitle("Estadístiques")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button("Resum setmanal", systemImage: "calendar.badge.clock") { nav.mostraResum = true }
+                    .labelStyle(.iconOnly)
+            }
+        }
     }
 
     private var eixMesos: some AxisContent {

@@ -75,9 +75,17 @@ final class DataStore {
     @ObservationIgnored private var sembrantPlats = false
     @ObservationIgnored private var citesReprogramades = false
     @ObservationIgnored private var anotacionsReprogramades = false
+    @ObservationIgnored private var tascaResum: Task<Void, Never>?
+    @ObservationIgnored private var compratsEnEspera: Set<String> = []
 
     private init() {
-        dies.enCanviar = { [weak self] in self?.actualitzaSnapshot() }
+        dies.enCanviar = { [weak self] in
+            self?.actualitzaSnapshot()
+            self?.reprogramaResumAmbRetard()
+            #if os(iOS)
+            ServeiSalut.shared.aiguaPotHaCanviat()
+            #endif
+        }
         configs.enCanviar = { [weak self] in self?.actualitzaSnapshot() }
         categoriesMetge.enCanviar = { [weak self] in
             self?.sembraCategoriesSiCal()
@@ -93,6 +101,10 @@ final class DataStore {
             self?.actualitzaSnapshotsExtra()
         }
         anotacions.enCanviar = { [weak self] in self?.reprogramaAnotacionsLaPrimeraVegada() }
+        llistaCompra.enCanviar = { [weak self] in
+            self?.aplicaCompratsEnEspera()
+            self?.actualitzaSnapshotsExtra()
+        }
         connecta(LocalBackend.shared)
     }
 
@@ -139,8 +151,27 @@ final class DataStore {
             case .aigua(let ml): suma(.aiguaMl, ml, dia: a.dia)
             case .cafe(let n): suma(.cafes, n, dia: a.dia)
             case .queixa: suma(.queixes, 1, dia: a.dia)
+            case .comprat(let id): marcaComprat(id)
+            case .cansament(let valor): posa(.cansament, max(0, valor), dia: a.dia)
             }
         }
+    }
+
+    /// Ratlla un element de la compra fet des del widget. Si encara no han arribat les dades (arrancada en segon pla),
+    /// es recorda i s'aplica en carregar-les, perquè no es perga.
+    private func marcaComprat(_ id: String) {
+        if let element = llistaCompra[id] {
+            if !element.comprat { LlistaCompra.marca(element, comprat: true) }
+        } else if !llistaCompra.carregada {
+            compratsEnEspera.insert(id)
+        }
+    }
+
+    private func aplicaCompratsEnEspera() {
+        guard llistaCompra.carregada, !compratsEnEspera.isEmpty else { return }
+        let ids = compratsEnEspera
+        compratsEnEspera = []
+        ids.forEach { marcaComprat($0) }
     }
 
     /// Manté al dia la foto que llegeixen widgets i Live Activity.
@@ -157,16 +188,32 @@ final class DataStore {
             case .aigua(let ml): snap.aiguaMl += ml
             case .cafe(let n): snap.cafes += n
             case .queixa: snap.queixes += 1
+            case .cansament(let valor): snap.cansament = max(0, valor)
+            case .comprat: break
             }
         }
         guard snap != HuiSnapshot.carrega() else { return }
         snap.desa()
         Task { await AccionsRapides.refresca(snap) }
+        #if os(iOS)
+        ServeiRellotge.shared.programaEnviament()
+        #endif
+    }
+
+    /// El contingut de la notificació del resum depén dels dies: es recalcula uns segons després
+    /// de l'últim canvi (no a cada toc).
+    private func reprogramaResumAmbRetard() {
+        tascaResum?.cancel()
+        tascaResum = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 5_000_000_000)
+            guard !Task.isCancelled else { return }
+            Avisos.programaResum()
+        }
     }
 
     // MARK: Widgets (pròxima cita i menú de la setmana)
 
-    /// Escriu al App Group la pròxima cita i el menú dels pròxims 7 dies perquè els widgets els pinten.
+    /// Escriu al App Group la pròxima cita, el menú dels pròxims 7 dies i la llista de la compra perquè els widgets els pinten.
     private func actualitzaSnapshotsExtra() {
         var canvis = false
 
@@ -199,6 +246,23 @@ final class DataStore {
             canvis = true
         }
 
+        // Llista de la compra: els pendents (menys els que ja s'han ratllat des del widget i encara no s'han pujat).
+        let ratllats = Set(CuaAccions.llegeix().compactMap { p -> String? in
+            if case .comprat(let id) = p.accio { return id }
+            return nil
+        })
+        let pendentsCompra = llistaCompra.items
+            .filter { !$0.comprat && !ratllats.contains($0.id) }
+            .map { ItemCompra(id: $0.id, nom: $0.nom, quantitat: $0.quantitat, creat: $0.creat) }
+        let compra = CompraSnapshot.des(pendentsCompra)
+        if compra != CompraSnapshot.carrega() {
+            compra.desa()
+            canvis = true
+        }
+
+        #if os(iOS)
+        if canvis { ServeiRellotge.shared.programaEnviament() }
+        #endif
         #if canImport(WidgetKit)
         if canvis { WidgetCenter.shared.reloadAllTimelines() }
         #endif

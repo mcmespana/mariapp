@@ -12,8 +12,12 @@ struct ResumMes: Identifiable {
     var diesCafes = 0
     var diesDolor = 0
     var queixes = 0
+    var sumaSon = 0
+    var diesSon = 0
 
     var id: Date { mes }
+    /// Hores dormides de mitjana (dels dies amb el son apuntat).
+    var sonMitjaHores: Double? { diesSon > 0 ? Double(sumaSon) / Double(diesSon) / 60 : nil }
     var cansamentMitja: Double? { diesCansament > 0 ? Double(sumaCansament) / Double(diesCansament) : nil }
     var aiguaMitjana: Double? { diesAigua > 0 ? Double(sumaAigua) / Double(diesAigua) : nil }
     var cafesMitjans: Double? { diesCafes > 0 ? Double(sumaCafes) / Double(diesCafes) : nil }
@@ -53,6 +57,7 @@ enum Analisi {
             if d.aiguaMl > 0 { r.sumaAigua += d.aiguaMl; r.diesAigua += 1 }
             if d.cafes > 0 || d.cansament != nil { r.sumaCafes += d.cafes; r.diesCafes += 1 }
             if d.teDolor { r.diesDolor += 1 }
+            if let s = d.sonMinuts { r.sumaSon += s; r.diesSon += 1 }
             r.queixes += d.queixes
             resums[m] = r
         }
@@ -109,7 +114,7 @@ enum Analisi {
     }
 
     /// Resum AGREGAT (sense notes personals) per a enviar a la IA.
-    static func resumPerIA(resums: [ResumMes], cafes: [PuntCafeCansament], diaSetmana: [CansamentDiaSetmana], escala: Int, objectiuMl: Int) -> String {
+    static func resumPerIA(resums: [ResumMes], cafes: [PuntCafeCansament], diaSetmana: [CansamentDiaSetmana], creuaments: [String] = [], escala: Int, objectiuMl: Int) -> String {
         func n(_ x: Double?) -> String { x.map { String(format: "%.0f", $0) } ?? "–" }
         var linies = ["Escala del cansament: 0 (fresca) a \(escala) (feta pols). Objectiu d'aigua: \(objectiuMl) ml/dia."]
         linies.append("Per mesos (gimnàs = dies; cansament, aigua en ml i cafés = mitjana dels dies apuntats; molèsties = dies; queixes = total):")
@@ -123,6 +128,7 @@ enum Analisi {
         if !diaSetmana.isEmpty {
             linies.append("Cansament mitjà per dia de la setmana: " + diaSetmana.map { "\($0.nom) \(n($0.mitja))" }.joined(separator: ", "))
         }
+        linies.append(contentsOf: creuaments)
         return linies.joined(separator: "\n")
     }
 }

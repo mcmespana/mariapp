@@ -53,6 +53,23 @@ final class Preferencies {
     var horaGimnas: Hora {
         didSet { desa(horaGimnas, "avisos.gimnas"); Avisos.reprograma() }
     }
+    /// Notificació del diumenge amb com ha anat la setmana.
+    var resumSetmanal: Bool {
+        didSet { d.set(resumSetmanal, forKey: "resum.actiu"); Avisos.programaResum() }
+    }
+    var horaResum: Hora {
+        didSet { desa(horaResum, "resum.hora"); Avisos.programaResum() }
+    }
+    /// Apple Salut (només iPhone de la Maria): què es llig i què s'escriu.
+    var salutGimnas: Bool {
+        didSet { d.set(salutGimnas, forKey: "salut.gimnas") }
+    }
+    var salutAigua: Bool {
+        didSet { d.set(salutAigua, forKey: "salut.aigua") }
+    }
+    var salutSon: Bool {
+        didSet { d.set(salutSon, forKey: "salut.son") }
+    }
     var activitatEnDirecte: Bool {
         didSet { d.set(activitatEnDirecte, forKey: "activitat.directe") }
     }
@@ -71,6 +88,11 @@ final class Preferencies {
         horesAigua = Self.llig("avisos.aigua") ?? [Hora(hora: 10, minut: 30), Hora(hora: 12, minut: 30), Hora(hora: 16, minut: 30), Hora(hora: 19, minut: 30)]
         avisGimnas = d.object(forKey: "avisos.gimnas.actiu") as? Bool ?? true
         horaGimnas = Self.llig("avisos.gimnas") ?? Hora(hora: 21, minut: 30)
+        resumSetmanal = d.object(forKey: "resum.actiu") as? Bool ?? true
+        horaResum = Self.llig("resum.hora") ?? Hora(hora: 21, minut: 0)
+        salutGimnas = d.bool(forKey: "salut.gimnas")
+        salutAigua = d.bool(forKey: "salut.aigua")
+        salutSon = d.bool(forKey: "salut.son")
         activitatEnDirecte = d.object(forKey: "activitat.directe") as? Bool ?? true
         sonsActius = d.object(forKey: "sons.actius") as? Bool ?? true
         modelIA = d.string(forKey: "ia.model") ?? ServeiIA.modelRapid

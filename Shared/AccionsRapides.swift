@@ -16,6 +16,12 @@ enum AccionsRapides {
         case .aigua(let ml): snap.aiguaMl = max(0, snap.aiguaMl + ml)
         case .cafe(let n): snap.cafes = max(0, snap.cafes + n)
         case .queixa: snap.queixes += 1
+        case .cansament(let valor): snap.cansament = max(0, valor)
+        case .comprat(let id):
+            // El widget de la compra el treu de la llista a l'instant; l'app el marcarà de veres al núvol.
+            var compra = CompraSnapshot.carrega()
+            compra.treu(id: id)
+            compra.desa()
         }
         snap.desa()
         CuaAccions.afegeix(AccioPendent(dia: snap.dia, accio: accio, data: Date()))

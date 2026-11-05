@@ -13,6 +13,7 @@ enum Avisos {
         case aigua = "AIGUA"
         case gimnas = "GIMNAS"
         case cita = "CITA"
+        case resum = "RESUM"
     }
 
     enum Accio: String {
@@ -59,7 +60,8 @@ enum Avisos {
             intentIdentifiers: []
         )
         let cita = UNNotificationCategory(identifier: Categoria.cita.rawValue, actions: [], intentIdentifiers: [])
-        centre.setNotificationCategories([cansament, aigua, gimnas, cita])
+        let resum = UNNotificationCategory(identifier: Categoria.resum.rawValue, actions: [], intentIdentifiers: [])
+        centre.setNotificationCategories([cansament, aigua, gimnas, cita, resum])
     }
 
     static func demanaPermis() async -> Bool {
@@ -85,6 +87,7 @@ enum Avisos {
     /// Esborra i torna a programar els avisos diaris segons les preferències.
     static func reprograma() {
         let prefs = Preferencies.shared
+        programaResum()
         centre.getPendingNotificationRequests { pendents in
             let ids = pendents.map(\.identifier).filter { $0.hasPrefix("rutina.") }
             centre.removePendingNotificationRequests(withIdentifiers: ids)
@@ -126,6 +129,36 @@ enum Avisos {
                 )
             }
         }
+    }
+
+    // MARK: Resum setmanal
+
+    /// Notificació ÚNICA (no repetitiva) per al pròxim diumenge a l'hora triada, amb les dades d'ara.
+    /// Es recalcula quan canvien les dades, en tornar a primer pla i en canviar les preferències.
+    static func programaResum() {
+        let nova = peticioResum()
+        // Esborrar i afegir dins del mateix callback (veure `programa(cita:)`).
+        centre.getPendingNotificationRequests { pendents in
+            if pendents.contains(where: { $0.identifier == ResumSetmanal.idNotificacio }) {
+                centre.removePendingNotificationRequests(withIdentifiers: [ResumSetmanal.idNotificacio])
+            }
+            if let nova { centre.add(nova) }
+        }
+    }
+
+    private static func peticioResum() -> UNNotificationRequest? {
+        let prefs = Preferencies.shared
+        let store = DataStore.shared
+        guard prefs.esMaria, prefs.avisosActius, prefs.resumSetmanal,
+              let quan = ResumSetmanal.dataNotificacio(hora: prefs.horaResum) else { return nil }
+        // El diumenge que ve és el final de la setmana que conté aquesta data.
+        let resum = ResumSetmanal.calcula(dies: store.dies.items, setmana: Setmana.inici(de: quan), objectiuMl: store.config.objectiuMl)
+        let c = UNMutableNotificationContent()
+        c.title = ResumSetmanal.titolNotificacio(resum)
+        c.body = ResumSetmanal.cosNotificacio(resum)
+        c.categoryIdentifier = Categoria.resum.rawValue
+        c.sound = UNNotificationSound(named: UNNotificationSoundName(So.campaneta.fitxer))
+        return peticio(id: ResumSetmanal.idNotificacio, contingut: c, quan: quan)
     }
 
     private static func programaDiari(id: String, hora: Hora, titol: String, cos: String, categoria: Categoria, so: So) {

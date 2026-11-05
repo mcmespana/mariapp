@@ -5,6 +5,7 @@ struct Arrel: View {
     @Environment(Navegacio.self) private var nav
 
     var body: some View {
+        @Bindable var nav = nav
         Group {
             if prefs.rol == nil {
                 Benvinguda()
@@ -13,6 +14,10 @@ struct Arrel: View {
             }
         }
         .animation(.smooth, value: prefs.rol)
+        // El resum setmanal s'obri des de la notificació, Hui o Estadístiques: per això penja de l'arrel.
+        .sheet(isPresented: $nav.mostraResum) {
+            NavigationStack { ResumSetmanaView() }
+        }
     }
 }
 
