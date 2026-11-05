@@ -327,6 +327,8 @@ struct DetallPlat: View {
                     }
                 }
 
+                AjudaIAPlat(plat: plat)
+
                 Button {
                     afegeix = true
                 } label: {

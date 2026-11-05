@@ -35,6 +35,11 @@ struct TriaPlat: View {
                         }
                     }
 
+                    IdeesIA(apat: apat, dia: dia, menu: menu) { plat in
+                        alTriar(EntradaMenu(platId: plat.id))
+                        dismiss()
+                    }
+
                     filtres
 
                     Targeta(tint: Paleta.groc) {

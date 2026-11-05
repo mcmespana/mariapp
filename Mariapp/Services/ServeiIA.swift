@@ -67,4 +67,40 @@ enum ServeiIA {
         let text = blocs.filter { $0["type"] as? String == "text" }.compactMap { $0["text"] as? String }.joined(separator: "\n")
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
+
+    // MARK: JSON
+
+    /// Fa una pregunta i decodifica la resposta com a JSON. Reintenta una vegada si no es pot llegir.
+    static func json<T: Decodable>(
+        _ missatge: String,
+        tipus: T.Type,
+        sistema: String = sistemaBase,
+        model: String? = nil,
+        maxTokens: Int = 2000
+    ) async throws -> T {
+        let sistemaJSON = sistema + "\nRespon NOMÉS amb JSON vàlid, sense cap text abans ni després i sense blocs de codi (```)."
+        for _ in 0..<2 {
+            let text = try await pregunta(missatge, sistema: sistemaJSON, model: model, maxTokens: maxTokens)
+            if let valor = decodifica(text, tipus: tipus) { return valor }
+        }
+        throw ErrorIA.resposta("No he entés la resposta de la IA. Torna-ho a provar 🙏")
+    }
+
+    /// Extrau el primer bloc `[…]` o `{…}` d'un text (per si la IA afig frases al voltant).
+    static func blocJSON(_ text: String) -> String? {
+        let claus: [(Character, Character)] = [("[", "]"), ("{", "}")]
+        var candidats: [Range<String.Index>] = []
+        for (obre, tanca) in claus {
+            if let a = text.firstIndex(of: obre), let b = text.lastIndex(of: tanca), a < b {
+                candidats.append(a..<text.index(after: b))
+            }
+        }
+        guard let millor = candidats.min(by: { $0.lowerBound < $1.lowerBound }) else { return nil }
+        return String(text[millor])
+    }
+
+    static func decodifica<T: Decodable>(_ text: String, tipus: T.Type) -> T? {
+        guard let bloc = blocJSON(text), let data = bloc.data(using: .utf8) else { return nil }
+        return try? JSONDecoder().decode(tipus, from: data)
+    }
 }
