@@ -9,5 +9,6 @@ struct MariappWidgetsMac: WidgetBundle {
         CitaWidget()
         MenuWidget()
         CansamentWidget()
+        CompraWidget()
     }
 }

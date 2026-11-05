@@ -76,6 +76,8 @@ enum AccioRapida: Codable, Equatable {
     case aigua(ml: Int)
     case cafe(quantitat: Int)
     case queixa
+    /// Ratlla un element de la llista de la compra (des del widget). Els casos nous no trenquen el `Codable` dels antics.
+    case comprat(id: String)
 }
 
 struct AccioPendent: Codable, Identifiable {

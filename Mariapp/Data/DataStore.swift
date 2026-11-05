@@ -76,6 +76,7 @@ final class DataStore {
     @ObservationIgnored private var citesReprogramades = false
     @ObservationIgnored private var anotacionsReprogramades = false
     @ObservationIgnored private var tascaResum: Task<Void, Never>?
+    @ObservationIgnored private var compratsEnEspera: Set<String> = []
 
     private init() {
         dies.enCanviar = { [weak self] in
@@ -97,6 +98,10 @@ final class DataStore {
             self?.actualitzaSnapshotsExtra()
         }
         anotacions.enCanviar = { [weak self] in self?.reprogramaAnotacionsLaPrimeraVegada() }
+        llistaCompra.enCanviar = { [weak self] in
+            self?.aplicaCompratsEnEspera()
+            self?.actualitzaSnapshotsExtra()
+        }
         connecta(LocalBackend.shared)
     }
 
@@ -143,8 +148,26 @@ final class DataStore {
             case .aigua(let ml): suma(.aiguaMl, ml, dia: a.dia)
             case .cafe(let n): suma(.cafes, n, dia: a.dia)
             case .queixa: suma(.queixes, 1, dia: a.dia)
+            case .comprat(let id): marcaComprat(id)
             }
         }
+    }
+
+    /// Ratlla un element de la compra fet des del widget. Si encara no han arribat les dades (arrancada en segon pla),
+    /// es recorda i s'aplica en carregar-les, perquè no es perga.
+    private func marcaComprat(_ id: String) {
+        if let element = llistaCompra[id] {
+            if !element.comprat { LlistaCompra.marca(element, comprat: true) }
+        } else if !llistaCompra.carregada {
+            compratsEnEspera.insert(id)
+        }
+    }
+
+    private func aplicaCompratsEnEspera() {
+        guard llistaCompra.carregada, !compratsEnEspera.isEmpty else { return }
+        let ids = compratsEnEspera
+        compratsEnEspera = []
+        ids.forEach { marcaComprat($0) }
     }
 
     /// Manté al dia la foto que llegeixen widgets i Live Activity.
@@ -161,6 +184,7 @@ final class DataStore {
             case .aigua(let ml): snap.aiguaMl += ml
             case .cafe(let n): snap.cafes += n
             case .queixa: snap.queixes += 1
+            case .comprat: break
             }
         }
         guard snap != HuiSnapshot.carrega() else { return }
@@ -181,7 +205,7 @@ final class DataStore {
 
     // MARK: Widgets (pròxima cita i menú de la setmana)
 
-    /// Escriu al App Group la pròxima cita i el menú dels pròxims 7 dies perquè els widgets els pinten.
+    /// Escriu al App Group la pròxima cita, el menú dels pròxims 7 dies i la llista de la compra perquè els widgets els pinten.
     private func actualitzaSnapshotsExtra() {
         var canvis = false
 
@@ -211,6 +235,20 @@ final class DataStore {
         }
         if menu != MenuSnapshot.carrega() {
             menu.desa()
+            canvis = true
+        }
+
+        // Llista de la compra: els pendents (menys els que ja s'han ratllat des del widget i encara no s'han pujat).
+        let ratllats = Set(CuaAccions.llegeix().compactMap { p -> String? in
+            if case .comprat(let id) = p.accio { return id }
+            return nil
+        })
+        let pendentsCompra = llistaCompra.items
+            .filter { !$0.comprat && !ratllats.contains($0.id) }
+            .map { ItemCompra(id: $0.id, nom: $0.nom, quantitat: $0.quantitat, creat: $0.creat) }
+        let compra = CompraSnapshot.des(pendentsCompra)
+        if compra != CompraSnapshot.carrega() {
+            compra.desa()
             canvis = true
         }
 

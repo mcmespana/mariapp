@@ -49,6 +49,24 @@ struct SumaQueixaIntent: IntentRapid {
     }
 }
 
+/// Ratlla un element de la llista de la compra des del widget (sense obrir l'app).
+struct MarcaCompratIntent: IntentRapid {
+    static let title: LocalizedStringResource = "Marcar com a comprat"
+    static let description = IntentDescription("Ratlla un element de la llista de la compra.")
+    static let isDiscoverable = false
+
+    @Parameter(title: "Element")
+    var elementId: String
+
+    init() {}
+    init(id: String) { self.elementId = id }
+
+    func perform() async throws -> some IntentResult {
+        await AccionsRapides.executa(.comprat(id: elementId))
+        return .result()
+    }
+}
+
 #if os(iOS)
 /// Engega l'activitat en directe del dia. Es pot posar en una automatització de Dreceres (p. ex. a les 9:00).
 struct ComencaElDiaIntent: LiveActivityIntent {

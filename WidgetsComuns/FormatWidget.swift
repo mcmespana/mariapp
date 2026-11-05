@@ -8,11 +8,13 @@ enum FamiliesWidget {
     static let cita: [WidgetFamily] = [.systemSmall, .systemMedium, .accessoryRectangular]
     static let menu: [WidgetFamily] = [.systemSmall, .systemMedium, .accessoryRectangular]
     static let cansament: [WidgetFamily] = [.systemSmall, .accessoryCircular]
+    static let compra: [WidgetFamily] = [.systemSmall, .systemMedium, .systemLarge, .accessoryRectangular]
     #else
     static let hui: [WidgetFamily] = [.systemSmall, .systemMedium]
     static let cita: [WidgetFamily] = [.systemSmall, .systemMedium]
     static let menu: [WidgetFamily] = [.systemSmall, .systemMedium]
     static let cansament: [WidgetFamily] = [.systemSmall]
+    static let compra: [WidgetFamily] = [.systemSmall, .systemMedium, .systemLarge]
     #endif
 }
 
