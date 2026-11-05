@@ -68,11 +68,13 @@ final class DataStore {
     let anotacions = Coleccio<AnotacioEsdeveniment>()
 
     @ObservationIgnored private(set) var backend: SyncBackend = LocalBackend.shared
+    @ObservationIgnored private var sembrantPlats = false
 
     private init() {
         dies.enCanviar = { [weak self] in self?.actualitzaSnapshot() }
         configs.enCanviar = { [weak self] in self?.actualitzaSnapshot() }
         categoriesMetge.enCanviar = { [weak self] in self?.sembraCategoriesSiCal() }
+        plats.enCanviar = { [weak self] in self?.sembraPlatsSiCal() }
         connecta(LocalBackend.shared)
     }
 
@@ -140,6 +142,31 @@ final class DataStore {
         guard snap != HuiSnapshot.carrega() else { return }
         snap.desa()
         Task { await AccionsRapides.refresca(snap) }
+    }
+
+    // MARK: Menú
+
+    private static let clauPlatsSembrats = "plats.sembrats"
+
+    /// Primer arrancada sense cap plat: sembra uns quants d'exemple (amb id estable, així no es dupliquen entre dispositius).
+    /// Espera un moment perquè, si hi ha dades al núvol, arriben abans de decidir que està buit.
+    private func sembraPlatsSiCal() {
+        let d = UserDefaults.standard
+        guard plats.carregada, !d.bool(forKey: Self.clauPlatsSembrats) else { return }
+        if !plats.items.isEmpty {
+            d.set(true, forKey: Self.clauPlatsSembrats)
+            return
+        }
+        guard !sembrantPlats else { return }
+        sembrantPlats = true
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 2_500_000_000)
+            guard let self else { return }
+            self.sembrantPlats = false
+            guard self.plats.items.isEmpty, !d.bool(forKey: Self.clauPlatsSembrats) else { return }
+            d.set(true, forKey: Self.clauPlatsSembrats)
+            Plat.exemples.forEach { self.plats.desa($0) }
+        }
     }
 
     // MARK: Metges
