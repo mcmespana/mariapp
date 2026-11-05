@@ -75,9 +75,13 @@ final class DataStore {
     @ObservationIgnored private var sembrantPlats = false
     @ObservationIgnored private var citesReprogramades = false
     @ObservationIgnored private var anotacionsReprogramades = false
+    @ObservationIgnored private var tascaResum: Task<Void, Never>?
 
     private init() {
-        dies.enCanviar = { [weak self] in self?.actualitzaSnapshot() }
+        dies.enCanviar = { [weak self] in
+            self?.actualitzaSnapshot()
+            self?.reprogramaResumAmbRetard()
+        }
         configs.enCanviar = { [weak self] in self?.actualitzaSnapshot() }
         categoriesMetge.enCanviar = { [weak self] in
             self?.sembraCategoriesSiCal()
@@ -162,6 +166,17 @@ final class DataStore {
         guard snap != HuiSnapshot.carrega() else { return }
         snap.desa()
         Task { await AccionsRapides.refresca(snap) }
+    }
+
+    /// El contingut de la notificació del resum depén dels dies: es recalcula uns segons després
+    /// de l'últim canvi (no a cada toc).
+    private func reprogramaResumAmbRetard() {
+        tascaResum?.cancel()
+        tascaResum = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 5_000_000_000)
+            guard !Task.isCancelled else { return }
+            Avisos.programaResum()
+        }
     }
 
     // MARK: Widgets (pròxima cita i menú de la setmana)

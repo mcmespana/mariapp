@@ -69,6 +69,7 @@ final class Navegacio {
 
     var seccio: Seccio = .hui
     var mostraCansament = false
+    var mostraResum = false
     var codiInvitacio: String?
 
     func obri(_ url: URL) {
@@ -81,6 +82,9 @@ final class Navegacio {
         case "cansament":
             seccio = .hui
             mostraCansament = true
+        case "resum":
+            seccio = .hui
+            mostraResum = true
         case let host?:
             if let s = Seccio(rawValue: host) { seccio = s }
         default:

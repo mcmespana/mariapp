@@ -79,6 +79,7 @@ enum Arrencada {
         // Per si s'han creat o canviat cites des d'un altre dispositiu.
         ServeiCites.reprograma()
         ServeiAnotacions.reprograma()
+        Avisos.programaResum()
         #if os(iOS)
         if Preferencies.shared.esMaria, Preferencies.shared.activitatEnDirecte {
             let hora = Calendar.current.component(.hour, from: Date())
@@ -138,6 +139,7 @@ enum RespostaNotificacio {
         if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
             switch categoria {
             case Avisos.Categoria.cansament.rawValue: Navegacio.shared.obri(URL(string: "mariapp://cansament")!)
+            case Avisos.Categoria.resum.rawValue: Navegacio.shared.obri(URL(string: "mariapp://resum")!)
             case Avisos.Categoria.cita.rawValue: Navegacio.shared.seccio = .metges
             default: Navegacio.shared.seccio = .hui
             }

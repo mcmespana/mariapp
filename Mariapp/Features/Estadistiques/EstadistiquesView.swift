@@ -3,6 +3,7 @@ import SwiftUI
 
 struct EstadistiquesView: View {
     @Environment(DataStore.self) private var store
+    @Environment(Navegacio.self) private var nav
     @State private var mesos = 6
 
     var body: some View {
@@ -172,6 +173,12 @@ struct EstadistiquesView: View {
         }
         .fonsMariapp()
         .navigationTitle("Estadístiques")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button("Resum setmanal", systemImage: "calendar.badge.clock") { nav.mostraResum = true }
+                    .labelStyle(.iconOnly)
+            }
+        }
     }
 
     private var eixMesos: some AxisContent {
