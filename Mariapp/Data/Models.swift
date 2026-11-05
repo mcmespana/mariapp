@@ -236,6 +236,10 @@ struct Cita: Registre {
     var recordarDemanarEl: Date?
     /// eventIdentifier de l'esdeveniment creat al calendari (si n'hi ha).
     var esdevenimentId: String?
+    /// Alarma de despertador (AlarmKit): minuts abans de la cita en què sona. nil = sense alarma.
+    var alarmaMinuts: Int?
+    /// Identificador de l'alarma de sistema programada (només té sentit al dispositiu de la Maria).
+    var alarmaId: String?
     var creat: Date = Date()
 
     init(titol: String) { self.titol = titol }
@@ -253,6 +257,8 @@ struct Cita: Registre {
         avisos = try c.decodeIfPresent([Int].self, forKey: .avisos) ?? [1440, 120]
         recordarDemanarEl = try c.decodeIfPresent(Date.self, forKey: .recordarDemanarEl)
         esdevenimentId = try c.decodeIfPresent(String.self, forKey: .esdevenimentId)
+        alarmaMinuts = try c.decodeIfPresent(Int.self, forKey: .alarmaMinuts)
+        alarmaId = try c.decodeIfPresent(String.self, forKey: .alarmaId)
         creat = try c.decodeIfPresent(Date.self, forKey: .creat) ?? Date()
     }
 }
@@ -351,5 +357,36 @@ struct AnotacioEsdeveniment: Registre {
         color = try? c.decodeIfPresent(ColorEtiqueta.self, forKey: .color)
         nota = try c.decodeIfPresent(String.self, forKey: .nota)
         avisos = try c.decodeIfPresent([Int].self, forKey: .avisos) ?? []
+    }
+}
+
+// MARK: - Llista de la compra
+
+/// Un ítem de la llista de la compra (un document per ítem: menys conflictes entre dispositius).
+struct ElementCompra: Registre {
+    static let colleccio = "llistaCompra"
+
+    var id: String = UUID().uuidString
+    var nom: String
+    var quantitat: String?
+    var comprat: Bool = false
+    /// Si ve d'un plat del menú: el plat i l'ingredient, per a marcar-lo com "el tenim" en comprar-lo.
+    var platId: String?
+    var platNom: String?
+    var ingredientId: String?
+    var creat: Date = Date()
+
+    init(nom: String) { self.nom = nom }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        nom = try c.decodeIfPresent(String.self, forKey: .nom) ?? ""
+        quantitat = try c.decodeIfPresent(String.self, forKey: .quantitat)
+        comprat = try c.decodeIfPresent(Bool.self, forKey: .comprat) ?? false
+        platId = try c.decodeIfPresent(String.self, forKey: .platId)
+        platNom = try c.decodeIfPresent(String.self, forKey: .platNom)
+        ingredientId = try c.decodeIfPresent(String.self, forKey: .ingredientId)
+        creat = try c.decodeIfPresent(Date.self, forKey: .creat) ?? Date()
     }
 }

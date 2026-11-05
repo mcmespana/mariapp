@@ -1,5 +1,8 @@
 import Foundation
 import Observation
+#if canImport(WidgetKit)
+import WidgetKit
+#endif
 
 /// Una col·lecció de registres que s'actualitza sola quan canvien les dades (local o núvol).
 @Observable
@@ -66,13 +69,30 @@ final class DataStore {
     let cites = Coleccio<Cita>()
     let pensaments = Coleccio<Pensament>()
     let anotacions = Coleccio<AnotacioEsdeveniment>()
+    let llistaCompra = Coleccio<ElementCompra>()
 
     @ObservationIgnored private(set) var backend: SyncBackend = LocalBackend.shared
+    @ObservationIgnored private var sembrantPlats = false
+    @ObservationIgnored private var citesReprogramades = false
+    @ObservationIgnored private var anotacionsReprogramades = false
 
     private init() {
         dies.enCanviar = { [weak self] in self?.actualitzaSnapshot() }
         configs.enCanviar = { [weak self] in self?.actualitzaSnapshot() }
-        categoriesMetge.enCanviar = { [weak self] in self?.sembraCategoriesSiCal() }
+        categoriesMetge.enCanviar = { [weak self] in
+            self?.sembraCategoriesSiCal()
+            self?.actualitzaSnapshotsExtra()
+        }
+        plats.enCanviar = { [weak self] in
+            self?.sembraPlatsSiCal()
+            self?.actualitzaSnapshotsExtra()
+        }
+        menus.enCanviar = { [weak self] in self?.actualitzaSnapshotsExtra() }
+        cites.enCanviar = { [weak self] in
+            self?.reprogramaCitesLaPrimeraVegada()
+            self?.actualitzaSnapshotsExtra()
+        }
+        anotacions.enCanviar = { [weak self] in self?.reprogramaAnotacionsLaPrimeraVegada() }
         connecta(LocalBackend.shared)
     }
 
@@ -86,6 +106,7 @@ final class DataStore {
         cites.connecta(backend)
         pensaments.connecta(backend)
         anotacions.connecta(backend)
+        llistaCompra.connecta(backend)
     }
 
     // MARK: Configuració
@@ -128,7 +149,8 @@ final class DataStore {
         let c = config
         let pendents = CuaAccions.llegeix().filter { $0.dia == d.id }
         var snap = HuiSnapshot(dia: d.id, aiguaMl: d.aiguaMl, cafes: d.cafes, queixes: d.queixes,
-                               gimnas: d.gimnas, objectiuMl: c.objectiuMl, ampollaMl: c.ampollaMl)
+                               gimnas: d.gimnas, objectiuMl: c.objectiuMl, ampollaMl: c.ampollaMl,
+                               cansament: d.cansament, escalaCansament: c.escalaCansament)
         // Les accions encara no pujades també compten.
         for p in pendents {
             switch p.accio {
@@ -142,7 +164,87 @@ final class DataStore {
         Task { await AccionsRapides.refresca(snap) }
     }
 
+    // MARK: Widgets (pròxima cita i menú de la setmana)
+
+    /// Escriu al App Group la pròxima cita i el menú dels pròxims 7 dies perquè els widgets els pinten.
+    private func actualitzaSnapshotsExtra() {
+        var canvis = false
+
+        let proxima = ServeiCites.properaCita(cites.items).flatMap { c -> CitaSnapshot? in
+            guard let data = c.data else { return nil }
+            return CitaSnapshot(titol: c.titol, emoji: categoriesMetge[c.categoriaId]?.emoji ?? "🏥", data: data, lloc: c.lloc)
+        }
+        if proxima != CitaSnapshot.carrega() {
+            CitaSnapshot.desa(proxima)
+            canvis = true
+        }
+
+        let cal = Calendar.current
+        let inici = cal.startOfDay(for: Date())
+        var menu = MenuSnapshot()
+        for i in 0..<7 {
+            guard let dia = cal.date(byAdding: .day, value: i, to: inici) else { continue }
+            let setmana = menus[MenuSetmana.id(per: dia)]
+            let n = Setmana.numeroDia(dia)
+            func text(_ apat: Apat) -> String? {
+                guard let e = setmana?.entrada(dia: n, apat: apat) else { return nil }
+                if let id = e.platId, let p = plats[id] { return "\(p.emoji) \(p.nom)" }
+                return e.text
+            }
+            let parella = ParellaMenu(dinar: text(.dinar), sopar: text(.sopar))
+            if parella.dinar != nil || parella.sopar != nil { menu.dies[ClauDia.de(dia)] = parella }
+        }
+        if menu != MenuSnapshot.carrega() {
+            menu.desa()
+            canvis = true
+        }
+
+        #if canImport(WidgetKit)
+        if canvis { WidgetCenter.shared.reloadAllTimelines() }
+        #endif
+    }
+
+    // MARK: Menú
+
+    private static let clauPlatsSembrats = "plats.sembrats"
+
+    /// Primer arrancada sense cap plat: sembra uns quants d'exemple (amb id estable, així no es dupliquen entre dispositius).
+    /// Espera un moment perquè, si hi ha dades al núvol, arriben abans de decidir que està buit.
+    private func sembraPlatsSiCal() {
+        let d = UserDefaults.standard
+        guard plats.carregada, !d.bool(forKey: Self.clauPlatsSembrats) else { return }
+        if !plats.items.isEmpty {
+            d.set(true, forKey: Self.clauPlatsSembrats)
+            return
+        }
+        guard !sembrantPlats else { return }
+        sembrantPlats = true
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 2_500_000_000)
+            guard let self else { return }
+            self.sembrantPlats = false
+            guard self.plats.items.isEmpty, !d.bool(forKey: Self.clauPlatsSembrats) else { return }
+            d.set(true, forKey: Self.clauPlatsSembrats)
+            Plat.exemples.forEach { self.plats.desa($0) }
+        }
+    }
+
+    // MARK: Calendari
+
+    private func reprogramaAnotacionsLaPrimeraVegada() {
+        guard anotacions.carregada, !anotacionsReprogramades else { return }
+        anotacionsReprogramades = true
+        ServeiAnotacions.reprograma()
+    }
+
     // MARK: Metges
+
+    /// Quan arriben les cites per primera vegada en arrancar, es reprograma tot (avisos i alarmes).
+    private func reprogramaCitesLaPrimeraVegada() {
+        guard cites.carregada, !citesReprogramades else { return }
+        citesReprogramades = true
+        ServeiCites.reprograma()
+    }
 
     private func sembraCategoriesSiCal() {
         guard categoriesMetge.carregada, categoriesMetge.items.isEmpty else { return }

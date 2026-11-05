@@ -78,6 +78,7 @@ extension Seccio {
         case .calendari: CalendariView()
         case .menu: MenuView()
         case .metges: MetgesView()
+        case .compra: LlistaCompraView()
         case .estadistiques: EstadistiquesView()
         case .david: DavidView()
         case .fills: FillsView()

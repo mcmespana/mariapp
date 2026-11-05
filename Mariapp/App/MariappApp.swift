@@ -12,24 +12,54 @@ struct MariappApp: App {
     @Environment(\.scenePhase) private var fase
 
     var body: some Scene {
-        WindowGroup {
+        WindowGroup(id: "principal") {
             Arrel()
-                .environment(DataStore.shared)
-                .environment(Sincronitzacio.shared)
-                .environment(Preferencies.shared)
-                .environment(ServeiCalendari.shared)
-                .environment(Navegacio.shared)
-                .environment(\.locale, Dates.locale)
-                .tint(Paleta.aigua)
-                .fontDesign(.rounded)
+                .entornMariapp()
                 .onOpenURL { Navegacio.shared.obri($0) }
         }
         #if os(macOS)
         .defaultSize(width: 1100, height: 760)
+        .commands { ComandesMariapp() }
         #endif
         .onChange(of: fase) { _, nova in
             if nova == .active { Arrencada.enTornarAlPrimerPla() }
         }
+
+        #if os(macOS)
+        MenuBarExtra {
+            MenuBarMariapp()
+                .entornMariapp()
+        } label: {
+            Label("Mariapp", systemImage: "drop.fill")
+        }
+        .menuBarExtraStyle(.window)
+
+        Settings {
+            AjustosView()
+                .entornMariapp()
+                .frame(width: 580, height: 680)
+        }
+        #endif
+    }
+}
+
+extension View {
+    /// Tot l'entorn de Mariapp (dades, preferències, calendari, navegació, idioma i estil).
+    func entornMariapp() -> some View {
+        self
+            .environment(DataStore.shared)
+            .environment(Sincronitzacio.shared)
+            .environment(Preferencies.shared)
+            .environment(ServeiCalendari.shared)
+            .environment(Navegacio.shared)
+            .environment(\.locale, Dates.locale)
+            .tint(Paleta.aigua)
+            .fontDesign(.rounded)
+    }
+
+    /// Ample màxim en pantalles grans (Mac, iPad), centrat.
+    func ampleMaxim(_ ample: CGFloat = 640) -> some View {
+        frame(maxWidth: ample).frame(maxWidth: .infinity)
     }
 }
 
@@ -46,6 +76,9 @@ enum Arrencada {
         // Puja el que s'haja apuntat des del widget mentre l'app estava tancada.
         DataStore.shared.processa(CuaAccions.buida())
         ServeiCalendari.shared.recarrega()
+        // Per si s'han creat o canviat cites des d'un altre dispositiu.
+        ServeiCites.reprograma()
+        ServeiAnotacions.reprograma()
         #if os(iOS)
         if Preferencies.shared.esMaria, Preferencies.shared.activitatEnDirecte {
             let hora = Calendar.current.component(.hour, from: Date())

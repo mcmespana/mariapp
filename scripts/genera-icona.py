@@ -49,6 +49,40 @@ img = Image.alpha_composite(img, fl)
 d = ImageDraw.Draw(img)
 d.line([(lx - S * 0.075, ly + S * 0.052), (lx + S * 0.075, ly - S * 0.052)], fill=(247, 241, 230), width=int(S * 0.008))
 
+# Per a iOS, la icona va de vora a vora (el sistema li posa la màscara).
+conjunt = os.path.join(os.path.dirname(__file__), "..", "Mariapp", "Resources", "Assets.xcassets", "AppIcon.appiconset")
+base = img.convert("RGB")
+
+# Per a Mac: "squircle" (superel·lipse) de 824 px dins d'un llenç de 1024 px, amb ombra suau.
+def squircle(mida, n=5.0, sobre=4):
+    gran = mida * sobre
+    c = gran / 2
+    punts = []
+    for i in range(1440):
+        t = 2 * math.pi * i / 1440
+        x = math.copysign(abs(math.cos(t)) ** (2 / n), math.cos(t))
+        y = math.copysign(abs(math.sin(t)) ** (2 / n), math.sin(t))
+        punts.append((c + c * x, c + c * y))
+    m = Image.new("L", (gran, gran), 0)
+    ImageDraw.Draw(m).polygon(punts, fill=255)
+    return m.resize((mida, mida), Image.LANCZOS)
+
+LLENC, ICONA = 1024, 824
+marge = (LLENC - ICONA) // 2
+mascara = squircle(ICONA)
+peça = base.resize((ICONA, ICONA), Image.LANCZOS)
+llenc = Image.new("RGBA", (LLENC, LLENC), (0, 0, 0, 0))
+ombra = Image.new("L", (LLENC, LLENC), 0)
+ombra.paste(mascara, (marge, marge + 14))
+ombra = ombra.filter(ImageFilter.GaussianBlur(18)).point(lambda v: int(v * 0.35))
+negre = Image.new("RGBA", (LLENC, LLENC), (60, 40, 20, 0))
+negre.putalpha(ombra)
+llenc = Image.alpha_composite(llenc, negre)
+llenc.paste(peça, (marge, marge), mascara)
+mac = os.path.join(conjunt, "AppIcon-mac.png")
+llenc.save(mac)
+print("Icona de Mac desada a", os.path.abspath(mac))
+
 out = os.path.join(os.path.dirname(__file__), "..", "Mariapp", "Resources", "Assets.xcassets", "AppIcon.appiconset", "AppIcon.png")
 img.convert("RGB").resize((1024, 1024), Image.LANCZOS).save(out)
 print("Icona desada a", os.path.abspath(out))

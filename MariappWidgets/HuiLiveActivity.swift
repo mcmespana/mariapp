@@ -14,9 +14,14 @@ struct HuiLiveActivity: Widget {
             let e = context.state
             return DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    Label(FormatAigua.text(e.aiguaMl), systemImage: "drop.fill")
-                        .font(.system(.headline, design: .rounded))
-                        .foregroundStyle(Paleta.aigua)
+                    HStack(spacing: 8) {
+                        BotellaMini(progres: e.progres)
+                            .frame(width: 20, height: 44)
+                        Text(FormatAigua.text(e.aiguaMl))
+                            .font(.system(.headline, design: .rounded))
+                            .foregroundStyle(Paleta.aigua)
+                            .contentTransition(.numericText())
+                    }
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     Text("☕️ \(e.cafes)  😤 \(e.queixes)")
@@ -83,5 +88,24 @@ private struct PantallaBloqueig: View {
             .font(.system(.subheadline, design: .rounded).weight(.semibold))
             .buttonStyle(.bordered)
         }
+    }
+}
+
+/// Botella xicoteta: l'aigua puja suaument cada vegada que s'apunta alguna cosa.
+private struct BotellaMini: View {
+    let progres: Double
+
+    var body: some View {
+        GeometryReader { geo in
+            ZStack(alignment: .bottom) {
+                RoundedRectangle(cornerRadius: 7, style: .continuous)
+                    .stroke(Paleta.aigua.opacity(0.5), lineWidth: 2)
+                RoundedRectangle(cornerRadius: 5, style: .continuous)
+                    .fill(Paleta.aigua.gradient)
+                    .frame(height: max(4, (geo.size.height - 4) * progres))
+                    .padding(2)
+            }
+        }
+        .animation(.smooth(duration: 0.6), value: progres)
     }
 }

@@ -18,7 +18,9 @@ struct HuiView: View {
                             .foregroundStyle(Paleta.tinta)
                     }
                 }
+                TargetaAvisMetges()
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 320), spacing: 16, alignment: .top)], spacing: 16) {
+                    TargetaCalendariHui()
                     TargetaAigua(dia: dia)
                     TargetaCansament(dia: dia)
                     TargetaGimnas(dia: dia)
@@ -30,6 +32,7 @@ struct HuiView: View {
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 32)
+            .ampleMaxim(1100)
         }
         .fonsMariapp()
         .toolbar {

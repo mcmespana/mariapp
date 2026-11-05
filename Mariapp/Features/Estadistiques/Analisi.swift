@@ -107,4 +107,22 @@ enum Analisi {
         }
         return "El café no sembla canviar gaire el cansament (\(f(a)) vs \(f(b)))."
     }
+
+    /// Resum AGREGAT (sense notes personals) per a enviar a la IA.
+    static func resumPerIA(resums: [ResumMes], cafes: [PuntCafeCansament], diaSetmana: [CansamentDiaSetmana], escala: Int, objectiuMl: Int) -> String {
+        func n(_ x: Double?) -> String { x.map { String(format: "%.0f", $0) } ?? "–" }
+        var linies = ["Escala del cansament: 0 (fresca) a \(escala) (feta pols). Objectiu d'aigua: \(objectiuMl) ml/dia."]
+        linies.append("Per mesos (gimnàs = dies; cansament, aigua en ml i cafés = mitjana dels dies apuntats; molèsties = dies; queixes = total):")
+        for r in resums where r.diesCansament + r.diesAigua + r.diesGimnas + r.diesDolor + r.queixes > 0 {
+            let mes = r.mes.formatted(.dateTime.year().month(.twoDigits))
+            linies.append("- \(mes): gimnàs \(r.diesGimnas), cansament \(n(r.cansamentMitja)), aigua \(n(r.aiguaMitjana)), cafés \(r.cafesMitjans.map { String(format: "%.1f", $0) } ?? "–"), molèsties \(r.diesDolor), queixes \(r.queixes)")
+        }
+        if !cafes.isEmpty {
+            linies.append("Cansament mitjà segons els cafés del dia: " + cafes.map { "\($0.cafes == 5 ? "5+" : "\($0.cafes)") cafés → \(n($0.cansament)) (\($0.dies) dies)" }.joined(separator: "; "))
+        }
+        if !diaSetmana.isEmpty {
+            linies.append("Cansament mitjà per dia de la setmana: " + diaSetmana.map { "\($0.nom) \(n($0.mitja))" }.joined(separator: ", "))
+        }
+        return linies.joined(separator: "\n")
+    }
 }

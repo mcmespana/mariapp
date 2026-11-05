@@ -28,6 +28,14 @@ struct EstadistiquesView: View {
                     }
                 }
 
+                AnalisiIAView(resum: Analisi.resumPerIA(
+                    resums: resums,
+                    cafes: Analisi.cafesVsCansament(dies),
+                    diaSetmana: Analisi.cansamentPerDiaSetmana(dies),
+                    escala: escala,
+                    objectiuMl: store.config.objectiuMl
+                ))
+
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 340), spacing: 16, alignment: .top)], spacing: 16) {
                     // Gimnàs
                     Targeta(tint: Paleta.verd) {
@@ -160,6 +168,7 @@ struct EstadistiquesView: View {
                 }
             }
             .padding(16)
+            .ampleMaxim(1100)
         }
         .fonsMariapp()
         .navigationTitle("Estadístiques")

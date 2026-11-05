@@ -15,5 +15,27 @@ La primera vez: en el iPhone, *Ajustes → General → VPN y gestión de disposi
 
 Para Mac: repite *Archive* con destino "Any Mac" y distribúyelo igual; se instala desde TestFlight para Mac.
 
-## Más adelante
-El plan `docs/plans/08-testflight-automatico.md` automatiza subir builds desde GitHub Actions.
+## Opción 3 — Automático desde GitHub Actions (`.github/workflows/testflight.yml`)
+Cada build se sube sola a TestFlight, sin abrir Xcode. Solo hay que hacer **una vez** esta preparación (la hace una persona, no el agente):
+
+1. En App Store Connect crea la app (paso 1 de la opción 2) y, en *Users and Access → Integrations → App Store Connect API*, crea una **Team Key** con rol **App Manager**. Descarga el `.p8` (solo se puede una vez) y apunta el *Key ID* y el *Issuer ID*.
+2. En GitHub: *Settings → Secrets and variables → Actions → New repository secret*:
+
+   | Secret | Valor |
+   |---|---|
+   | `ASC_KEY_ID` | Key ID de la clave |
+   | `ASC_ISSUER_ID` | Issuer ID (arriba de la tabla de claves) |
+   | `ASC_KEY_P8` | Contenido completo del `.p8` (con las líneas `-----BEGIN…`) |
+   | `TEAM_ID` | Team ID de Apple (developer.apple.com → Membership) |
+
+3. Lanza el flujo:
+   - **A mano**: *Actions → TestFlight → Run workflow* (elige iOS, macOS o ambas).
+   - **Con etiqueta**: `git tag v0.2.0 && git push origin v0.2.0` (la versión de marketing sale de la etiqueta).
+
+Qué hace: `xcodegen` → `xcodebuild archive` con firma automática (`-allowProvisioningUpdates` + clave de API) → `xcodebuild -exportArchive` con `method = app-store-connect` y `destination = upload`. El número de build es el `run_number` de GitHub (`CURRENT_PROJECT_VERSION`), así que siempre sube.
+Si falta algún secret, el flujo falla enseguida con un mensaje claro.
+
+Notas:
+- Los runners de macOS gastan minutos ×10 en repos privados; cada subida ronda 10–15 min por plataforma.
+- La primera vez Apple puede tardar en crear los perfiles de aprovisionamiento (App Group `group.es.mariapp.app` incluido); si falla, abre el proyecto una vez en Xcode con tu cuenta para que se registren los identificadores.
+- Alternativa sin secretos en GitHub: **Xcode Cloud** (Xcode → Product → Xcode Cloud; 25 h/mes gratis).

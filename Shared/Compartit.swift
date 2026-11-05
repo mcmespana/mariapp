@@ -5,11 +5,7 @@ enum AppGroup {
     static let id: String = Bundle.main.object(forInfoDictionaryKey: "MariappAppGroup") as? String ?? "group.es.mariapp.app"
 
     static var defaults: UserDefaults {
-        #if os(iOS)
-        return UserDefaults(suiteName: id) ?? .standard
-        #else
-        return .standard
-        #endif
+        UserDefaults(suiteName: id) ?? .standard
     }
 }
 
@@ -45,6 +41,9 @@ struct HuiSnapshot: Codable, Equatable {
     var gimnas: Bool = false
     var objectiuMl: Int = 2250
     var ampollaMl: Int = 750
+    /// Cansament d'hui (0...escala) per al widget del cansòmetre. nil = no apuntat.
+    var cansament: Int?
+    var escalaCansament: Int?
 
     private static let clau = "hui.snapshot"
 

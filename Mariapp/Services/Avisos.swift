@@ -1,5 +1,10 @@
 import Foundation
 import UserNotifications
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 /// Notificacions locals. Només es programen les "rutines" al dispositiu de la Maria.
 enum Avisos {
@@ -59,6 +64,20 @@ enum Avisos {
 
     static func demanaPermis() async -> Bool {
         (try? await centre.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
+    }
+
+    static func estatPermis() async -> UNAuthorizationStatus {
+        await centre.notificationSettings().authorizationStatus
+    }
+
+    /// Obri els ajustos de notificacions del sistema (iPhone: els de l'app; Mac: Notificacions).
+    @MainActor
+    static func obriAjustosNotificacions() {
+        #if canImport(UIKit)
+        if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+        #elseif canImport(AppKit)
+        if let url = URL(string: "x-apple.systempreferences:com.apple.Notifications-Settings.extension") { NSWorkspace.shared.open(url) }
+        #endif
     }
 
     // MARK: Rutines diàries
@@ -126,13 +145,24 @@ enum Avisos {
 
     /// Programa tots els avisos d'una cita (o el recordatori per a demanar-la). Esborra els anteriors.
     static func programa(cita: Cita, categoria: CategoriaMetge?) {
-        cancela(citaId: cita.id)
-        guard Preferencies.shared.esMaria else { return }
+        let nova = esMaria() ? peticions(cita: cita, categoria: categoria) : []
+        // Esborrar i afegir dins del mateix callback: si no, l'esborrat podria menjar-se els avisos nous.
+        centre.getPendingNotificationRequests { pendents in
+            let ids = pendents.map(\.identifier).filter { $0.hasPrefix("cita.\(cita.id).") }
+            centre.removePendingNotificationRequests(withIdentifiers: ids)
+            nova.forEach { centre.add($0) }
+        }
+    }
+
+    private static func esMaria() -> Bool { Preferencies.shared.esMaria }
+
+    private static func peticions(cita: Cita, categoria: CategoriaMetge?) -> [UNNotificationRequest] {
         let nomCategoria = categoria.map { "\($0.emoji) \($0.nom)" } ?? "🏥 Metge"
+        var resultat: [UNNotificationRequest] = []
 
         switch cita.estat {
         case .programada:
-            guard let data = cita.data else { return }
+            guard let data = cita.data else { return [] }
             for minuts in cita.avisos {
                 let quan = data.addingTimeInterval(TimeInterval(-minuts * 60))
                 guard quan > Date() else { continue }
@@ -142,20 +172,21 @@ enum Avisos {
                 c.categoryIdentifier = Categoria.cita.rawValue
                 c.sound = UNNotificationSound(named: UNNotificationSoundName(So.sirena.fitxer))
                 c.interruptionLevel = .timeSensitive
-                afegeix(id: "cita.\(cita.id).\(minuts)", contingut: c, quan: quan)
+                resultat.append(peticio(id: "cita.\(cita.id).\(minuts)", contingut: c, quan: quan))
             }
         case .perDemanar:
-            guard let quan = cita.recordarDemanarEl, quan > Date() else { return }
+            guard let quan = cita.recordarDemanarEl, quan > Date() else { return [] }
             let c = UNMutableNotificationContent()
             c.title = "📞 Toca demanar cita!"
             c.body = "\(nomCategoria): \(cita.titol). Agafa el telèfon ARA, que després no ho fas 😅"
             c.categoryIdentifier = Categoria.cita.rawValue
             c.sound = UNNotificationSound(named: UNNotificationSoundName(So.sirena.fitxer))
             c.interruptionLevel = .timeSensitive
-            afegeix(id: "cita.\(cita.id).demanar", contingut: c, quan: quan)
+            resultat.append(peticio(id: "cita.\(cita.id).demanar", contingut: c, quan: quan))
         case .feta:
             break
         }
+        return resultat
     }
 
     static func cancela(citaId: String) {
@@ -165,10 +196,41 @@ enum Avisos {
         }
     }
 
-    private static func afegeix(id: String, contingut: UNNotificationContent, quan: Date) {
+    private static func peticio(id: String, contingut: UNNotificationContent, quan: Date) -> UNNotificationRequest {
         let c = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: quan)
         let trigger = UNCalendarNotificationTrigger(dateMatching: c, repeats: false)
-        centre.add(UNNotificationRequest(identifier: id, content: contingut, trigger: trigger))
+        return UNNotificationRequest(identifier: id, content: contingut, trigger: trigger)
+    }
+
+    // MARK: Anotacions del calendari
+
+    /// Avisos extra d'un esdeveniment del calendari (`anot.<id>.<minuts>`). Només al dispositiu de la Maria.
+    static func programa(anotacio: AnotacioEsdeveniment, titol: String, inici: Date) {
+        var nova: [UNNotificationRequest] = []
+        if esMaria() {
+            let emoji = anotacio.emoji.map { "\($0) " } ?? ""
+            for minuts in anotacio.avisos {
+                let quan = inici.addingTimeInterval(TimeInterval(-minuts * 60))
+                guard quan > Date() else { continue }
+                let c = UNMutableNotificationContent()
+                c.title = "\(emoji)\(titol) \(textAntelacio(minuts))"
+                if let nota = anotacio.nota, !nota.isEmpty { c.body = nota }
+                c.sound = UNNotificationSound(named: UNNotificationSoundName(So.campaneta.fitxer))
+                nova.append(peticio(id: "anot.\(anotacio.id).\(minuts)", contingut: c, quan: quan))
+            }
+        }
+        centre.getPendingNotificationRequests { pendents in
+            let ids = pendents.map(\.identifier).filter { $0.hasPrefix("anot.\(anotacio.id).") }
+            centre.removePendingNotificationRequests(withIdentifiers: ids)
+            nova.forEach { centre.add($0) }
+        }
+    }
+
+    static func cancela(anotacioId: String) {
+        centre.getPendingNotificationRequests { pendents in
+            let ids = pendents.map(\.identifier).filter { $0.hasPrefix("anot.\(anotacioId).") }
+            centre.removePendingNotificationRequests(withIdentifiers: ids)
+        }
     }
 
     static func textAntelacio(_ minuts: Int) -> String {
