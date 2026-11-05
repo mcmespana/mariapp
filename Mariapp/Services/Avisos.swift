@@ -183,6 +183,37 @@ enum Avisos {
         return UNNotificationRequest(identifier: id, content: contingut, trigger: trigger)
     }
 
+    // MARK: Anotacions del calendari
+
+    /// Avisos extra d'un esdeveniment del calendari (`anot.<id>.<minuts>`). Només al dispositiu de la Maria.
+    static func programa(anotacio: AnotacioEsdeveniment, titol: String, inici: Date) {
+        var nova: [UNNotificationRequest] = []
+        if esMaria() {
+            let emoji = anotacio.emoji.map { "\($0) " } ?? ""
+            for minuts in anotacio.avisos {
+                let quan = inici.addingTimeInterval(TimeInterval(-minuts * 60))
+                guard quan > Date() else { continue }
+                let c = UNMutableNotificationContent()
+                c.title = "\(emoji)\(titol) \(textAntelacio(minuts))"
+                if let nota = anotacio.nota, !nota.isEmpty { c.body = nota }
+                c.sound = UNNotificationSound(named: UNNotificationSoundName(So.campaneta.fitxer))
+                nova.append(peticio(id: "anot.\(anotacio.id).\(minuts)", contingut: c, quan: quan))
+            }
+        }
+        centre.getPendingNotificationRequests { pendents in
+            let ids = pendents.map(\.identifier).filter { $0.hasPrefix("anot.\(anotacio.id).") }
+            centre.removePendingNotificationRequests(withIdentifiers: ids)
+            nova.forEach { centre.add($0) }
+        }
+    }
+
+    static func cancela(anotacioId: String) {
+        centre.getPendingNotificationRequests { pendents in
+            let ids = pendents.map(\.identifier).filter { $0.hasPrefix("anot.\(anotacioId).") }
+            centre.removePendingNotificationRequests(withIdentifiers: ids)
+        }
+    }
+
     static func textAntelacio(_ minuts: Int) -> String {
         switch minuts {
         case 0: return "ARA MATEIX"

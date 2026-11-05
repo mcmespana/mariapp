@@ -20,6 +20,7 @@ struct HuiView: View {
                 }
                 TargetaAvisMetges()
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 320), spacing: 16, alignment: .top)], spacing: 16) {
+                    TargetaCalendariHui()
                     TargetaAigua(dia: dia)
                     TargetaCansament(dia: dia)
                     TargetaGimnas(dia: dia)

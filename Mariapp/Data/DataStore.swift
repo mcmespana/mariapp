@@ -70,6 +70,7 @@ final class DataStore {
     @ObservationIgnored private(set) var backend: SyncBackend = LocalBackend.shared
     @ObservationIgnored private var sembrantPlats = false
     @ObservationIgnored private var citesReprogramades = false
+    @ObservationIgnored private var anotacionsReprogramades = false
 
     private init() {
         dies.enCanviar = { [weak self] in self?.actualitzaSnapshot() }
@@ -77,6 +78,7 @@ final class DataStore {
         categoriesMetge.enCanviar = { [weak self] in self?.sembraCategoriesSiCal() }
         plats.enCanviar = { [weak self] in self?.sembraPlatsSiCal() }
         cites.enCanviar = { [weak self] in self?.reprogramaCitesLaPrimeraVegada() }
+        anotacions.enCanviar = { [weak self] in self?.reprogramaAnotacionsLaPrimeraVegada() }
         connecta(LocalBackend.shared)
     }
 
@@ -169,6 +171,14 @@ final class DataStore {
             d.set(true, forKey: Self.clauPlatsSembrats)
             Plat.exemples.forEach { self.plats.desa($0) }
         }
+    }
+
+    // MARK: Calendari
+
+    private func reprogramaAnotacionsLaPrimeraVegada() {
+        guard anotacions.carregada, !anotacionsReprogramades else { return }
+        anotacionsReprogramades = true
+        ServeiAnotacions.reprograma()
     }
 
     // MARK: Metges

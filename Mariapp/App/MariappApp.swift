@@ -48,6 +48,7 @@ enum Arrencada {
         ServeiCalendari.shared.recarrega()
         // Per si s'han creat o canviat cites des d'un altre dispositiu.
         ServeiCites.reprograma()
+        ServeiAnotacions.reprograma()
         #if os(iOS)
         if Preferencies.shared.esMaria, Preferencies.shared.activitatEnDirecte {
             let hora = Calendar.current.component(.hour, from: Date())

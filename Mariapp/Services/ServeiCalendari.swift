@@ -66,6 +66,19 @@ final class ServeiCalendari {
         return hash.prefix(16).map { String(format: "%02x", $0) }.joined()
     }
 
+    /// Crea un esdeveniment nou al calendari triat (o al per defecte).
+    func crea(titol: String, inici: Date, durada: TimeInterval = 3600, totElDia: Bool, calendari: EKCalendar?) throws -> EKEvent {
+        let e = EKEvent(eventStore: store)
+        e.calendar = calendari ?? store.defaultCalendarForNewEvents
+        e.title = titol
+        e.isAllDay = totElDia
+        e.startDate = inici
+        e.endDate = totElDia ? inici : inici.addingTimeInterval(durada)
+        try store.save(e, span: .thisEvent, commit: true)
+        recarrega()
+        return e
+    }
+
     // MARK: Cites del metge
 
     /// Crea o actualitza l'esdeveniment d'una cita. Retorna l'eventIdentifier.
