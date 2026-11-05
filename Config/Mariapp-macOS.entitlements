@@ -8,6 +8,10 @@
 	<true/>
 	<key>com.apple.security.personal-information.calendars</key>
 	<true/>
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>$(MARIAPP_APP_GROUP)</string>
+	</array>
 	<key>keychain-access-groups</key>
 	<array>
 		<string>$(AppIdentifierPrefix)$(MARIAPP_BUNDLE_ID)</string>

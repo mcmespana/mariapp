@@ -73,11 +73,14 @@ targets:
         product: FirebaseFirestore
       - target: MariappWidgets
         destinationFilters: [iOS]
+      - target: MariappWidgetsMac
+        destinationFilters: [macOS]
   MariappWidgets:
     type: app-extension
     platform: iOS
     sources:
       - path: MariappWidgets
+      - path: WidgetsComuns
       - path: Shared
     info:
       path: Config/MariappWidgets-Info.plist
@@ -95,6 +98,30 @@ targets:
         PRODUCT_NAME: MariappWidgets
         CODE_SIGN_ENTITLEMENTS: Config/MariappWidgets.entitlements
         TARGETED_DEVICE_FAMILY: "1,2"
+        SKIP_INSTALL: YES
+  MariappWidgetsMac:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: MariappWidgetsMac
+      - path: WidgetsComuns
+      - path: Shared
+    info:
+      path: Config/MariappWidgetsMac-Info.plist
+      properties:
+        CFBundleDisplayName: Mariapp
+        CFBundleDevelopmentRegion: ca
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        MariappAppGroup: $(MARIAPP_APP_GROUP)
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(MARIAPP_BUNDLE_ID).widgets
+        PRODUCT_NAME: MariappWidgetsMac
+        CODE_SIGN_ENTITLEMENTS: Config/MariappWidgetsMac.entitlements
+        ENABLE_HARDENED_RUNTIME: YES
         SKIP_INSTALL: YES
 schemes:
   Mariapp:

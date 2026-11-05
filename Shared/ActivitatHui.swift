@@ -33,6 +33,11 @@ enum ActivitatHui {
         !Activity<HuiActivityAttributes>.activities.isEmpty
     }
 
+    /// L'activitat es queda "caducada" a mitjanit (el dia següent és un altre dia).
+    private static var mitjanit: Date {
+        Calendar.current.startOfDay(for: Date().addingTimeInterval(86_400))
+    }
+
     static func comenca(_ snap: HuiSnapshot) {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
         // Si ja n'hi ha una d'un altre dia, la tanquem.
@@ -40,12 +45,12 @@ enum ActivitatHui {
             Task { await activitat.end(nil, dismissalPolicy: .immediate) }
         }
         guard !Activity<HuiActivityAttributes>.activities.contains(where: { $0.attributes.dia == snap.dia }) else { return }
-        let contingut = ActivityContent(state: HuiActivityAttributes.ContentState(snap), staleDate: nil)
+        let contingut = ActivityContent(state: HuiActivityAttributes.ContentState(snap), staleDate: mitjanit)
         _ = try? Activity.request(attributes: HuiActivityAttributes(dia: snap.dia), content: contingut, pushType: nil)
     }
 
     static func actualitza(_ snap: HuiSnapshot) async {
-        let contingut = ActivityContent(state: HuiActivityAttributes.ContentState(snap), staleDate: nil)
+        let contingut = ActivityContent(state: HuiActivityAttributes.ContentState(snap), staleDate: mitjanit)
         for activitat in Activity<HuiActivityAttributes>.activities {
             await activitat.update(contingut)
         }
