@@ -20,9 +20,9 @@ SwiftData + CloudKit no permite compartir datos con otra cuenta de iCloud (David
 
 ```
 llars/{CODI}                     { membres: [uid…], creada }
-llars/{CODI}/dies/{2026-11-04}   { aiguaMl, cafes, queixes, gimnas, cansament?, dolor?, nota? }
+llars/{CODI}/dies/{2026-11-04}   { aiguaMl, cafes, queixes, gimnas, cansament?, dolor?, nota?, entrenament?, sonMinuts? }
 llars/{CODI}/config/general      { ampollaMl, objectiuMl, escalaCansament }
-llars/{CODI}/plats/{uuid}        { nom, emoji, etiquetes[], thermomix, ingredients[], recepta, … }
+llars/{CODI}/plats/{uuid}        { nom, emoji, etiquetes[], thermomix, ingredients[], recepta, imatgeURL?, … }
 llars/{CODI}/menus/{2026-W45}    { apats: { "1-dinar": {platId|text}, … } }
 llars/{CODI}/categoriesMetge/{id}
 llars/{CODI}/cites/{uuid}        { titol, categoriaId, estat, data?, avisos[], esdevenimentId? … }
@@ -53,8 +53,42 @@ Botón del widget ──► SumaAiguaIntent (LiveActivityIntent → se ejecuta e
 - `rutina.gimnas` (21:30) Sí/No.
 - `cita.<id>.<minutos>`: alertas de médicos, *time-sensitive*, con sirena; además, alarma de despertador con AlarmKit (`Cita.alarmaMinuts`/`alarmaId`).
 - `anot.<id>.<minutos>`: avisos extra de eventos del calendario.
+- `resum.setmana`: **una sola** notificación (no repetitiva) para el próximo domingo a la hora elegida (21:00 por defecto). Su texto se calcula con los datos de ese momento y se reprograma al cambiar los días (con *debounce* de 5 s), al volver a primer plano y al cambiar las preferencias. Tocarla abre `mariapp://resum`.
 
 ## Live Activity
 
 Se inicia al abrir la app entre las 7 y las 22 h (si está activado en Ajustos) y se cierra fuera de ese horario.
 Además existe el atajo **"Comença el dia"**: se puede poner en una automatización de la app Atajos (p. ej. todos los días a las 9:00).
+
+## Resumen semanal y cruces de datos (planes 10 y 11)
+
+- `ResumSetmanal` (`Features/Resum/`) y `Analisi+Creuaments` (`Features/Estadistiques/`) son **lógica pura**: sin UI, sin red, probadas en `MariappTests`.
+- Las frases de los cruces (agua ↔ molestias, gimnasio → cansancio de mañana, café ↔ molestias, sueño ↔ cansancio) exigen **≥ 5 días** en cada extremo y nunca son diagnósticos. Los datos que se mandan a la IA son agregados, sin notas.
+
+## Recetas del mundo (plan 12)
+
+```
+TheMealDB (sin clave) ──► ParserReceptes (JSONSerialization: strIngredient1…20 dinámicos)
+        ▲                          │
+ consulta traducida por IA         ▼
+                           ReceptaExterna (inglés) ──► ServeiIA.json ──► ReceptaTraduida ──► Plat (con imatgeURL)
+```
+Sin IA se puede guardar la receta tal cual (en inglés). «Què faig amb el que tinc?» es solo IA.
+
+## Widget de la compra (plan 13)
+
+`CompraSnapshot` (App Group, máx. 12 pendientes + total) → `CompraWidget` (iOS y macOS). Cada fila es un `Button(intent: MarcaCompratIntent)`: quita el elemento del snapshot al instante y encola `AccioRapida.comprat(id:)`; el `DataStore` lo marca de verdad (si todavía no han llegado los datos, lo recuerda y lo aplica al cargarlos).
+
+## Apple Salud (plan 14, solo iPhone de María)
+
+- `ServeiSalut` lee entrenamientos (≥ 15 min → marca el gimnasio y guarda `entrenament`, **nunca** pone `false`) y sueño (`sonMinuts` de la noche que acaba ese día, unión de intervalos para no contar dos veces iPhone + Watch), y escribe **una** muestra de agua por día (borra las suyas y reescribe: idempotente).
+- Entrega en segundo plano (`HKObserverQuery`) **no** implementada: necesita el entitlement `com.apple.developer.healthkit.background-delivery`. Hoy todo se sincroniza al volver a primer plano.
+
+## Apple Watch (plan 15)
+
+```
+iPhone ──updateApplicationContext(EstatRellotge)──► Watch (MagatzemRellotge, App Group del reloj)
+Watch  ──transferUserInfo(AccioPendent) (+ sendMessage si está a mano)──► ServeiRellotge ──► DataStore.processa
+```
+- Sin Firebase en el reloj. Las acciones se aplican al momento en local (`EstatRellotge.aplica`) y el iPhone deduplica por el `id` de la `AccioPendent`.
+- Targets: `MariappWatch` (app) y `MariappWatchWidgets` (complicaciones: agua, cansancio, próxima cita). Comparten con el iPhone `Shared/Compartit.swift`, `SnapshotsExtra.swift` y `Paleta.swift`.
