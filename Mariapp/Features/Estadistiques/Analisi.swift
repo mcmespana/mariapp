@@ -109,7 +109,7 @@ enum Analisi {
     }
 
     /// Resum AGREGAT (sense notes personals) per a enviar a la IA.
-    static func resumPerIA(resums: [ResumMes], cafes: [PuntCafeCansament], diaSetmana: [CansamentDiaSetmana], escala: Int, objectiuMl: Int) -> String {
+    static func resumPerIA(resums: [ResumMes], cafes: [PuntCafeCansament], diaSetmana: [CansamentDiaSetmana], creuaments: [String] = [], escala: Int, objectiuMl: Int) -> String {
         func n(_ x: Double?) -> String { x.map { String(format: "%.0f", $0) } ?? "–" }
         var linies = ["Escala del cansament: 0 (fresca) a \(escala) (feta pols). Objectiu d'aigua: \(objectiuMl) ml/dia."]
         linies.append("Per mesos (gimnàs = dies; cansament, aigua en ml i cafés = mitjana dels dies apuntats; molèsties = dies; queixes = total):")
@@ -123,6 +123,7 @@ enum Analisi {
         if !diaSetmana.isEmpty {
             linies.append("Cansament mitjà per dia de la setmana: " + diaSetmana.map { "\($0.nom) \(n($0.mitja))" }.joined(separator: ", "))
         }
+        linies.append(contentsOf: creuaments)
         return linies.joined(separator: "\n")
     }
 }

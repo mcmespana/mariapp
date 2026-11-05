@@ -33,6 +33,7 @@ struct EstadistiquesView: View {
                     resums: resums,
                     cafes: Analisi.cafesVsCansament(dies),
                     diaSetmana: Analisi.cansamentPerDiaSetmana(dies),
+                    creuaments: Analisi.creuamentsPerIA(dies, escala: escala),
                     escala: escala,
                     objectiuMl: store.config.objectiuMl
                 ))
@@ -145,6 +146,11 @@ struct EstadistiquesView: View {
                         .chartXAxis { eixMesos }
                         .frame(height: 150)
                     }
+
+                    // Creuaments
+                    TargetaAiguaMolesties(dies: dies)
+                    TargetaCafesMolesties(dies: dies)
+                    TargetaGimnasCansament(dies: dies, escala: escala)
 
                     // Queixes
                     Targeta(tint: Paleta.taronja) {
