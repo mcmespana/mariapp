@@ -54,7 +54,7 @@ struct ReceptesTests {
         let r = ParserReceptes.parseja(jsonResum)
         // La tercera no té id: es descarta.
         #expect(r.map(\.nom) == ["Paella", "Tortilla"])
-        #expect(r.allSatisfy(\.esResum))
+        #expect(r.allSatisfy { $0.esResum })
         #expect(r[0].imatge != nil)
     }
 
@@ -85,7 +85,7 @@ struct ReceptesTests {
         #expect(plat.etiquetes == [.dinar, .rapid])
         #expect(plat.thermomix)
         #expect(plat.ingredients.map(\.nom) == ["450 g de penne", "Oli d'oliva"])
-        #expect(plat.ingredients.allSatisfy(\.tenim))
+        #expect(plat.ingredients.allSatisfy { $0.tenim })
         #expect(plat.recepta == "1. Bull l'aigua.\n2. Escorre la pasta.")
         #expect(plat.imatgeURL == "https://www.themealdb.com/images/media/meals/ustsqw1468250014.jpg")
         #expect(plat.urlImatge != nil)
