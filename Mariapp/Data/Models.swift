@@ -26,6 +26,10 @@ struct Dia: Registre {
     /// 0 gens, 1 un poquet, 2 prou, 3 molt. nil = no apuntat.
     var dolor: Int?
     var nota: String?
+    /// "🏋️ Força tradicional · 45 min", apuntat sol des d'Apple Salut. nil = res.
+    var entrenament: String?
+    /// Minuts dormits la nit que acaba en este dia (Apple Salut). nil = sense dades.
+    var sonMinuts: Int?
 
     init(id: String) { self.id = id }
 
@@ -39,6 +43,8 @@ struct Dia: Registre {
         cansament = try c.decodeIfPresent(Int.self, forKey: .cansament)
         dolor = try c.decodeIfPresent(Int.self, forKey: .dolor)
         nota = try c.decodeIfPresent(String.self, forKey: .nota)
+        entrenament = try c.decodeIfPresent(String.self, forKey: .entrenament)
+        sonMinuts = try c.decodeIfPresent(Int.self, forKey: .sonMinuts)
     }
 
     var data: Date { ClauDia.data(id) ?? .distantPast }
@@ -46,7 +52,7 @@ struct Dia: Registre {
 }
 
 enum CampDia: String {
-    case aiguaMl, cafes, queixes, gimnas, cansament, dolor, nota
+    case aiguaMl, cafes, queixes, gimnas, cansament, dolor, nota, entrenament, sonMinuts
 }
 
 // MARK: - Configuració compartida

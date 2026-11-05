@@ -150,6 +150,7 @@ struct TargetaCansament: View {
                         .buttonStyle(.suau(Paleta.blau))
                 }
                 BarraCansament(fraccio: Double(valor) / Double(max(escala, 1)))
+                if let son = dia.sonMinuts { chipSon(son) }
             } else {
                 Text("Com estàs de cansada hui?")
                     .font(.system(.body, design: .rounded))
@@ -160,8 +161,14 @@ struct TargetaCansament: View {
                     Label("Apuntar el cansament", systemImage: "hand.tap.fill")
                 }
                 .buttonStyle(.suau(Paleta.blau, ple: true))
+                if let son = dia.sonMinuts { chipSon(son) }
             }
         }
+    }
+
+    private func chipSon(_ minuts: Int) -> some View {
+        Xip(text: "😴 \(CalculSon.text(minuts: minuts))", color: Paleta.blau)
+            .accessibilityLabel("Has dormit \(CalculSon.text(minuts: minuts))")
     }
 }
 
@@ -302,7 +309,23 @@ struct TargetaGimnas: View {
             }
             .buttonStyle(.plain)
             .sensoryFeedback(.success, trigger: salta)
+
+            if let entrenament = dia.entrenament {
+                HStack(spacing: 10) {
+                    IconaClay(icona: "applewatch", color: Paleta.verd, mida: 30)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(entrenament)
+                            .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                            .foregroundStyle(Paleta.tinta)
+                        Text("Apuntat sol des de l'Apple Watch ⌚️")
+                            .font(.system(.caption, design: .rounded))
+                            .foregroundStyle(Paleta.tintaSuau)
+                    }
+                }
+                .transition(.opacity)
+            }
         }
+        .animation(Clay.molla, value: dia.entrenament)
     }
 
     /// Dies de gimnàs aquest mes.

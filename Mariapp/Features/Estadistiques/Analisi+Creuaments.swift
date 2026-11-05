@@ -73,6 +73,42 @@ struct GimnasCansamentEndema: Equatable {
     var hiHaDades: Bool { diesAmbGimnas > 0 && diesSenseGimnas > 0 }
 }
 
+/// Trams de son (nit anterior) per a creuar-lo amb el cansament.
+enum TramSon: Int, CaseIterable, Identifiable {
+    case menysDe6, de6a7_5, mesDe7_5
+
+    var id: Int { rawValue }
+    var nom: String {
+        switch self {
+        case .menysDe6: "< 6 h"
+        case .de6a7_5: "6–7,5 h"
+        case .mesDe7_5: "> 7,5 h"
+        }
+    }
+    var fragment: String {
+        switch self {
+        case .menysDe6: "dorms menys de 6 h"
+        case .de6a7_5: "dorms entre 6 i 7 h 30 min"
+        case .mesDe7_5: "dorms més de 7 h 30 min"
+        }
+    }
+
+    static func per(minuts: Int) -> TramSon {
+        switch minuts {
+        case ..<360: .menysDe6
+        case 360..<450: .de6a7_5
+        default: .mesDe7_5
+        }
+    }
+}
+
+struct PuntSonCansament: Identifiable, Equatable {
+    let tram: TramSon
+    let dies: Int
+    let cansamentMitja: Double
+    var id: Int { tram.rawValue }
+}
+
 extension Analisi {
     /// Dies mínims en un tram perquè en parlem.
     static let minimDiesCreuament = 5
@@ -192,6 +228,35 @@ extension Analisi {
         return "El gimnàs no sembla canviar el cansament de l'endemà (\(f(a)) vs \(f(b)))."
     }
 
+    // MARK: Son ↔ cansament
+
+    /// Cansament d'un dia segons el son de la nit que hi acaba (mateix document). Només dies amb les dues coses.
+    static func sonVsCansament(_ dies: [Dia]) -> [PuntSonCansament] {
+        var grups: [TramSon: [Int]] = [:]
+        for d in dies {
+            guard let son = d.sonMinuts, let cansament = d.cansament else { continue }
+            grups[TramSon.per(minuts: son), default: []].append(cansament)
+        }
+        return TramSon.allCases.compactMap { tram in
+            guard let valors = grups[tram], !valors.isEmpty else { return nil }
+            return PuntSonCansament(tram: tram, dies: valors.count, cansamentMitja: Double(valors.reduce(0, +)) / Double(valors.count))
+        }
+    }
+
+    static func fraseSonCansament(_ punts: [PuntSonCansament], escala: Int) -> String? {
+        let amb = punts.filter { $0.dies >= minimDiesCreuament }.sorted { $0.tram.rawValue < $1.tram.rawValue }
+        guard let poc = amb.first, let molt = amb.last, molt.tram.rawValue - poc.tram.rawValue >= 1 else { return nil }
+        let f = { (x: Double) in escala > 10 ? "\(Int(x.rounded()))" : String(format: "%.1f", x).replacingOccurrences(of: ".", with: ",") }
+        let llindar = Double(escala) * 0.05
+        let dades = "Les nits que \(poc.tram.fragment) estàs a \(f(poc.cansamentMitja)) de cansament; quan \(molt.tram.fragment), a \(f(molt.cansamentMitja))."
+        if poc.cansamentMitja > molt.cansamentMitja + llindar {
+            return "\(dades) Dormir compta 😴"
+        } else if molt.cansamentMitja > poc.cansamentMitja + llindar {
+            return "\(dades) Curiós: dormir més no sempre vol dir despertar-se millor 🤔"
+        }
+        return "No es veu cap relació clara (encara). \(dades)"
+    }
+
     // MARK: Per a la IA
 
     /// Línies agregades (sense notes) amb tots els creuaments, per a "✨ Analitza el meu mes".
@@ -213,7 +278,10 @@ extension Analisi {
         if gimnas.hiHaDades, let a = gimnas.cansamentAmbGimnas, let b = gimnas.cansamentSenseGimnas {
             linies.append("Cansament de l'endemà: després d'anar al gimnàs \(Int(a.rounded())) (\(gimnas.diesAmbGimnas) dies), sense gimnàs \(Int(b.rounded())) (\(gimnas.diesSenseGimnas) dies), sobre \(escala)")
         }
-        // TODO(plan 14): afegir aquí `sonVsCansament` quan hi haja dades del son.
+        let son = sonVsCansament(dies)
+        if !son.isEmpty {
+            linies.append("Cansament segons el son de la nit anterior (sobre \(escala)): " + son.map { "\($0.tram.nom) → \(Int($0.cansamentMitja.rounded())) (\($0.dies) dies)" }.joined(separator: "; "))
+        }
         return linies
     }
 }

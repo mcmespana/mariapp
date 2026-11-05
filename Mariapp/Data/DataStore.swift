@@ -82,6 +82,9 @@ final class DataStore {
         dies.enCanviar = { [weak self] in
             self?.actualitzaSnapshot()
             self?.reprogramaResumAmbRetard()
+            #if os(iOS)
+            ServeiSalut.shared.aiguaPotHaCanviat()
+            #endif
         }
         configs.enCanviar = { [weak self] in self?.actualitzaSnapshot() }
         categoriesMetge.enCanviar = { [weak self] in

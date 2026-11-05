@@ -12,8 +12,12 @@ struct ResumMes: Identifiable {
     var diesCafes = 0
     var diesDolor = 0
     var queixes = 0
+    var sumaSon = 0
+    var diesSon = 0
 
     var id: Date { mes }
+    /// Hores dormides de mitjana (dels dies amb el son apuntat).
+    var sonMitjaHores: Double? { diesSon > 0 ? Double(sumaSon) / Double(diesSon) / 60 : nil }
     var cansamentMitja: Double? { diesCansament > 0 ? Double(sumaCansament) / Double(diesCansament) : nil }
     var aiguaMitjana: Double? { diesAigua > 0 ? Double(sumaAigua) / Double(diesAigua) : nil }
     var cafesMitjans: Double? { diesCafes > 0 ? Double(sumaCafes) / Double(diesCafes) : nil }
@@ -53,6 +57,7 @@ enum Analisi {
             if d.aiguaMl > 0 { r.sumaAigua += d.aiguaMl; r.diesAigua += 1 }
             if d.cafes > 0 || d.cansament != nil { r.sumaCafes += d.cafes; r.diesCafes += 1 }
             if d.teDolor { r.diesDolor += 1 }
+            if let s = d.sonMinuts { r.sumaSon += s; r.diesSon += 1 }
             r.queixes += d.queixes
             resums[m] = r
         }

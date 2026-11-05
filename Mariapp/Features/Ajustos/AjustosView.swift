@@ -79,6 +79,12 @@ struct AjustosView: View {
                 .listRowBackground(Paleta.paper)
             }
 
+            #if os(iOS)
+            if prefs.esMaria {
+                SeccioSalut()
+            }
+            #endif
+
             Section {
                 if calendari.autoritzat {
                     LabeledContent("Accés al calendari", value: "✅")

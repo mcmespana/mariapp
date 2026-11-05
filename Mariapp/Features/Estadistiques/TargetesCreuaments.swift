@@ -109,3 +109,68 @@ struct TargetaCafesMolesties: View {
         }
     }
 }
+
+/// "Son": hores dormides de mitjana per mes (si hi ha dades d'Apple Salut).
+struct TargetaSon: View {
+    let resums: [ResumMes]
+
+    var body: some View {
+        let amb = resums.filter { $0.sonMitjaHores != nil }
+        if !amb.isEmpty {
+            Targeta(tint: Paleta.blau) {
+                CapcaleraTargeta(icona: "bed.double.fill", titol: "Son", color: Paleta.blau)
+                if let ultim = amb.last, let h = ultim.sonMitjaHores {
+                    Text("😴 \(CalculSon.text(minuts: Int((h * 60).rounded()))) de mitjana en \(Dates.mesLlarg(ultim.mes))")
+                        .font(.system(.subheadline, design: .rounded).weight(.medium))
+                        .foregroundStyle(Paleta.tinta)
+                }
+                Chart(amb) { r in
+                    BarMark(x: .value("Mes", r.mes, unit: .month), y: .value("Hores", r.sonMitjaHores ?? 0))
+                        .foregroundStyle(Paleta.blau.gradient)
+                        .cornerRadius(6)
+                }
+                .chartYScale(domain: 0...10)
+                .chartXAxis {
+                    AxisMarks(values: .stride(by: .month)) { _ in
+                        AxisGridLine().foregroundStyle(Paleta.linia)
+                        AxisValueLabel(format: .dateTime.month(.narrow), centered: true)
+                    }
+                }
+                .frame(height: 150)
+            }
+        }
+    }
+}
+
+/// "Son i cansament": el cansament d'un dia segons les hores dormides la nit abans.
+struct TargetaSonCansament: View {
+    let dies: [Dia]
+    let escala: Int
+
+    var body: some View {
+        let punts = Analisi.sonVsCansament(dies)
+        if !punts.isEmpty {
+            Targeta(tint: Paleta.blau) {
+                CapcaleraTargeta(icona: "moon.zzz.fill", titol: "Son i cansament", color: Paleta.blau)
+                if let frase = Analisi.fraseSonCansament(punts, escala: escala) {
+                    Text(frase)
+                        .font(.system(.subheadline, design: .rounded).weight(.medium))
+                        .foregroundStyle(Paleta.tinta)
+                } else {
+                    Text("Encara no hi ha prou dies per a dir res 🤷‍♀️")
+                        .font(.system(.subheadline, design: .rounded))
+                        .foregroundStyle(Paleta.tintaSuau)
+                }
+                Chart(punts) { p in
+                    BarMark(x: .value("Son", p.tram.nom), y: .value("Cansament", p.cansamentMitja))
+                        .foregroundStyle(EscalaCansament.color(Int(p.cansamentMitja.rounded()), escala: escala).gradient)
+                        .cornerRadius(6)
+                        .annotation(position: .top) { Text("\(p.dies) d").font(.caption2).foregroundStyle(Paleta.tintaSuau) }
+                }
+                .chartYScale(domain: 0...escala)
+                .chartXAxisLabel("Hores dormides la nit abans")
+                .frame(height: 160)
+            }
+        }
+    }
+}

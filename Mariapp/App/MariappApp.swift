@@ -81,6 +81,7 @@ enum Arrencada {
         ServeiAnotacions.reprograma()
         Avisos.programaResum()
         #if os(iOS)
+        Task { await ServeiSalut.shared.sincronitzaTot() }
         if Preferencies.shared.esMaria, Preferencies.shared.activitatEnDirecte {
             let hora = Calendar.current.component(.hour, from: Date())
             if (7...22).contains(hora) {

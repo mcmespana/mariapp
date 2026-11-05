@@ -151,6 +151,8 @@ struct EstadistiquesView: View {
                     TargetaAiguaMolesties(dies: dies)
                     TargetaCafesMolesties(dies: dies)
                     TargetaGimnasCansament(dies: dies, escala: escala)
+                    TargetaSon(resums: resums)
+                    TargetaSonCansament(dies: dies, escala: escala)
 
                     // Queixes
                     Targeta(tint: Paleta.taronja) {
