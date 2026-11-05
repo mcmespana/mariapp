@@ -8,6 +8,7 @@ struct PlatsView: View {
     @State private var nomesThermomix = false
     @State private var nomesPreferits = false
     @State private var nou = false
+    @State private var receptesMon = false
 
     private var filtrats: [Plat] {
         store.plats.items
@@ -18,6 +19,31 @@ struct PlatsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                Button {
+                    receptesMon = true
+                } label: {
+                    HStack(spacing: 12) {
+                        Text("🌍").font(.system(size: 30))
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Receptes del món")
+                                .font(.titolTargeta)
+                                .foregroundStyle(Paleta.tinta)
+                            Text("Busca amb foto, la IA les passa al valencià i les guardes")
+                                .font(.system(.caption, design: .rounded))
+                                .foregroundStyle(Paleta.tintaSuau)
+                                .multilineTextAlignment(.leading)
+                        }
+                        Spacer(minLength: 0)
+                        Image(systemName: "chevron.right")
+                            .font(.footnote.weight(.bold))
+                            .foregroundStyle(Paleta.tintaSuau)
+                    }
+                    .padding(14)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .clay(Paleta.verd, radi: Clay.radiMitja, elevacio: 0.6)
+                }
+                .buttonStyle(.plain)
+
                 FlowLayout(espai: 8) {
                     XipBoto(text: "⭐️ Preferits", color: Paleta.groc, seleccionat: nomesPreferits) { nomesPreferits.toggle() }
                     XipBoto(text: "🫕 Només Thermomix", color: Paleta.cafe, seleccionat: nomesThermomix) { nomesThermomix.toggle() }
@@ -67,6 +93,9 @@ struct PlatsView: View {
         .sheet(isPresented: $nou) {
             EditaPlat()
         }
+        .sheet(isPresented: $receptesMon) {
+            ReceptesMonView()
+        }
     }
 }
 
@@ -75,11 +104,24 @@ struct TargetaPlat: View {
 
     var body: some View {
         Targeta(tint: Paleta.verd) {
-            HStack(alignment: .top) {
-                Text(plat.emoji).font(.system(size: 42))
-                Spacer()
-                if plat.favorit {
-                    Image(systemName: "star.fill").foregroundStyle(Paleta.groc)
+            if let foto = plat.urlImatge {
+                FotoPlat(url: foto, emoji: plat.emoji, alcada: 96)
+                    .overlay(alignment: .topTrailing) {
+                        if plat.favorit {
+                            Image(systemName: "star.fill")
+                                .foregroundStyle(Paleta.groc)
+                                .padding(6)
+                                .background(.ultraThinMaterial, in: Circle())
+                                .padding(6)
+                        }
+                    }
+            } else {
+                HStack(alignment: .top) {
+                    Text(plat.emoji).font(.system(size: 42))
+                    Spacer()
+                    if plat.favorit {
+                        Image(systemName: "star.fill").foregroundStyle(Paleta.groc)
+                    }
                 }
             }
             Text(plat.nom)
@@ -184,6 +226,12 @@ struct EditaPlat: View {
                         .keyboardType(.URL)
                         .textInputAutocapitalization(.never)
                         #endif
+                    TextField("Foto (https://…)", text: Binding(get: { plat.imatgeURL ?? "" }, set: { plat.imatgeURL = $0.isEmpty ? nil : $0 }))
+                        .autocorrectionDisabled()
+                        #if os(iOS)
+                        .keyboardType(.URL)
+                        .textInputAutocapitalization(.never)
+                        #endif
                     TextField("Notes", text: $plat.notes, axis: .vertical)
                         .lineLimit(2...5)
                 }
@@ -264,10 +312,16 @@ struct DetallPlat: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 VStack(spacing: 12) {
-                    Text(plat.emoji)
-                        .font(.system(size: 56))
-                        .background { BolaClay(color: Paleta.verd, mida: 118) }
-                        .padding(.vertical, 10)
+                    if let foto = plat.urlImatge {
+                        Targeta(tint: Paleta.verd) {
+                            FotoPlat(url: foto, emoji: plat.emoji, alcada: 220)
+                        }
+                    } else {
+                        Text(plat.emoji)
+                            .font(.system(size: 56))
+                            .background { BolaClay(color: Paleta.verd, mida: 118) }
+                            .padding(.vertical, 10)
+                    }
                     Text(plat.nom)
                         .font(.titolGran(28))
                         .foregroundStyle(Paleta.tinta)

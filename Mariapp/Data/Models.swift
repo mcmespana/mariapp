@@ -118,6 +118,8 @@ struct Plat: Registre {
     var enllac: String?
     var notes: String = ""
     var favorit: Bool = false
+    /// Foto del plat (URL), p. ex. de TheMealDB. nil = sense foto.
+    var imatgeURL: String?
     var creat: Date = Date()
 
     init(nom: String) { self.nom = nom }
@@ -135,7 +137,13 @@ struct Plat: Registre {
         enllac = try c.decodeIfPresent(String.self, forKey: .enllac)
         notes = try c.decodeIfPresent(String.self, forKey: .notes) ?? ""
         favorit = try c.decodeIfPresent(Bool.self, forKey: .favorit) ?? false
+        imatgeURL = try c.decodeIfPresent(String.self, forKey: .imatgeURL)
         creat = try c.decodeIfPresent(Date.self, forKey: .creat) ?? Date()
+    }
+
+    var urlImatge: URL? {
+        guard let imatgeURL, let url = URL(string: imatgeURL), url.scheme?.hasPrefix("http") == true else { return nil }
+        return url
     }
 }
 
