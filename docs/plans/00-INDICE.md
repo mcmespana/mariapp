@@ -10,7 +10,7 @@ Definición de "hecho": el workflow **Compila Mariapp** en verde + criterios de 
 - [x] [05 — Llista de la compra](05-llista-compra.md)
 - [x] [06 — Pulido macOS](06-macos.md)
 - [x] [07 — Widgets extra](07-widgets.md)
-- [x] [08 — TestFlight automático](08-testflight-automatico.md)
+- [x] [08 — TestFlight automático](08-testflight-automatico.md) _(workflow listo; falta que una persona cree los 4 secrets, ver `docs/TESTFLIGHT.md`)_
 - [x] [09 — Tests](09-tests.md)
 
 ## Cómo lanzarlo con Claude Code
