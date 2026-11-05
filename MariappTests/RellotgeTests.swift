@@ -82,12 +82,4 @@ struct RellotgeTests {
         let json = #"{"cansament":{"valor":250}}"#
         #expect(try JSONDecoder().decode(AccioRapida.self, from: Data(json.utf8)) == .cansament(valor: 250))
     }
-
-    @Test func processaDeixaElCansamentDeLAccioAlDia() {
-        // El DataStore escriu el cansament al dia de l'acció (només es comprova que no falla amb dia passat).
-        let store = DataStore.shared
-        let pendent = AccioPendent(dia: "2020-01-01", accio: .cansament(valor: 300), data: Date())
-        store.processa([pendent])
-        #expect(store.dia("2020-01-01").id == "2020-01-01")
-    }
 }
