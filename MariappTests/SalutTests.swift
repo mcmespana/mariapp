@@ -57,7 +57,7 @@ struct SalutTests {
 
     @Test func retallaALaFinestraDeLaNit() {
         let finestra = CalculSon.finestra(nit: hora(12, dia: "2026-11-04"))
-        // 18:00 de l'1/11... en realitat: de les 18:00 del 3 de novembre a les 12:00 del 4.
+        // De les 18:00 del 3 de novembre a les 12:00 del 4.
         #expect(ClauDia.de(finestra.inici) == "2026-11-03")
         #expect(Calendar.current.component(.hour, from: finestra.inici) == 18)
         #expect(ClauDia.de(finestra.fi) == "2026-11-04")
