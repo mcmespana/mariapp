@@ -27,7 +27,7 @@ El proyecto Xcode se genera con **XcodeGen** desde `project.yml` (no hay `.xcode
 ## Skills instaladas (`.claude/skills/`) — úsalas
 - Diseño y SwiftUI: `apple-design`, `swiftui-pro` (**ojo**: los runners de GitHub solo tienen Xcode 26.6 / SDK iOS 26.5; NO uses APIs exclusivas de iOS 27 —ni con `#available`— hasta que el workflow use Xcode 27, porque no compilaría), `swiftui-animation`, `swiftui-liquid-glass`, `swift-charts`.
 - Swift: `write-swift` (seguimos en modo Swift 5 por ahora), `swift-testing-pro` (plan 09).
-- Sistema: `widgetkit`, `activitykit`, `app-intents`, `push-notifications`, `eventkit` (plan 03), `alarmkit` (plan 02), `tipkit`, `healthkit` (ideas).
+- Sistema: `widgetkit`, `activitykit`, `app-intents`, `push-notifications`, `eventkit` (plan 03), `alarmkit` (plan 02), `tipkit`, `healthkit` (plan 14).
 - Firebase: `firebase-security-rules-auditor` (revisar `firebase/firestore.rules`).
 Antes de tocar una de esas áreas, carga la skill correspondiente.
 
@@ -40,7 +40,11 @@ Mariapp/Design/    → componentes visuales
 Mariapp/Data/      → modelos, DataStore, backends (local / Firestore), sincronización
 Mariapp/Services/  → avisos, sonidos, calendario (EventKit), IA (Anthropic), preferencias
 Mariapp/Features/  → una carpeta por sección
-MariappWidgets/    → widget, Live Activity, controles
+MariappWidgets/    → widgets iOS: bundle, Live Activity, controles
+WidgetsComuns/     → widgets compartidos iOS + macOS (Hui, cita, menú, cansament…)
+MariappWidgetsMac/ → bundle de widgets de macOS
+MariappTests/      → tests (Swift Testing)
+(plan 15) MariappWatch/ y MariappWatchWidgets/ → app del Apple Watch y complicaciones
 docs/plans/        → planes pendientes, en orden
 ```
 
