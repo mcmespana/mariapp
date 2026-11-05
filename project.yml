@@ -123,11 +123,28 @@ targets:
         CODE_SIGN_ENTITLEMENTS: Config/MariappWidgetsMac.entitlements
         ENABLE_HARDENED_RUNTIME: YES
         SKIP_INSTALL: YES
+  MariappTests:
+    type: bundle.unit-test
+    supportedDestinations: [iOS, macOS]
+    sources:
+      - path: MariappTests
+    dependencies:
+      - target: Mariapp
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: $(MARIAPP_BUNDLE_ID).tests
+        SWIFT_VERSION: "5.0"
 schemes:
   Mariapp:
     build:
       targets:
         Mariapp: all
+        MariappTests: [test]
+    test:
+      config: Debug
+      targets:
+        - MariappTests
     run:
       config: Debug
     archive:
