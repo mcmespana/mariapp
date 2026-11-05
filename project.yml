@@ -8,6 +8,7 @@ options:
   deploymentTarget:
     iOS: "26.0"
     macOS: "26.0"
+    watchOS: "26.0"
 configFiles:
   Debug: Config/Mariapp.xcconfig
   Release: Config/Mariapp.xcconfig
@@ -124,6 +125,59 @@ targets:
         PRODUCT_NAME: MariappWidgetsMac
         CODE_SIGN_ENTITLEMENTS: Config/MariappWidgetsMac.entitlements
         ENABLE_HARDENED_RUNTIME: YES
+        SKIP_INSTALL: YES
+  MariappWatch:
+    type: application
+    platform: watchOS
+    sources:
+      - path: MariappWatch
+      # Només lo que el rellotge necessita (no tot Shared: hi ha WidgetKit, ActivityKit i intents).
+      - path: Shared/Compartit.swift
+      - path: Shared/SnapshotsExtra.swift
+      - path: Shared/Paleta.swift
+    info:
+      path: Config/MariappWatch-Info.plist
+      properties:
+        CFBundleDisplayName: Mariapp
+        CFBundleDevelopmentRegion: ca
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        WKApplication: true
+        WKCompanionAppBundleIdentifier: $(MARIAPP_BUNDLE_ID)
+        MariappAppGroup: $(MARIAPP_APP_GROUP)
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(MARIAPP_BUNDLE_ID).watchkitapp
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        CODE_SIGN_ENTITLEMENTS: Config/MariappWatch.entitlements
+        SKIP_INSTALL: YES
+    dependencies:
+      - target: MariappWatchWidgets
+  MariappWatchWidgets:
+    type: app-extension
+    platform: watchOS
+    sources:
+      - path: MariappWatchWidgets
+      - path: MariappWatch/EscalaRellotge.swift
+      - path: Shared/Compartit.swift
+      - path: Shared/SnapshotsExtra.swift
+      - path: Shared/Paleta.swift
+    info:
+      path: Config/MariappWatchWidgets-Info.plist
+      properties:
+        CFBundleDisplayName: Mariapp
+        CFBundleDevelopmentRegion: ca
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        MariappAppGroup: $(MARIAPP_APP_GROUP)
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(MARIAPP_BUNDLE_ID).watchkitapp.widgets
+        PRODUCT_NAME: MariappWatchWidgets
+        CODE_SIGN_ENTITLEMENTS: Config/MariappWatchWidgets.entitlements
         SKIP_INSTALL: YES
   MariappTests:
     type: bundle.unit-test

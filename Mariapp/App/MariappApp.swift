@@ -70,6 +70,9 @@ enum Arrencada {
         AccionsRapides.processador = { accions in DataStore.shared.processa(accions) }
         Avisos.registraCategories()
         Avisos.reprograma()
+        #if os(iOS)
+        ServeiRellotge.shared.activa()
+        #endif
     }
 
     static func enTornarAlPrimerPla() {

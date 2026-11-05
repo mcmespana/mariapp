@@ -78,6 +78,8 @@ enum AccioRapida: Codable, Equatable {
     case queixa
     /// Ratlla un element de la llista de la compra (des del widget). Els casos nous no trenquen el `Codable` dels antics.
     case comprat(id: String)
+    /// Apunta el cansament d'hui (0...escala), p. ex. amb la Digital Crown del rellotge.
+    case cansament(valor: Int)
 }
 
 struct AccioPendent: Codable, Identifiable {

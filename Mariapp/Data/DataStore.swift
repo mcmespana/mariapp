@@ -152,6 +152,7 @@ final class DataStore {
             case .cafe(let n): suma(.cafes, n, dia: a.dia)
             case .queixa: suma(.queixes, 1, dia: a.dia)
             case .comprat(let id): marcaComprat(id)
+            case .cansament(let valor): posa(.cansament, max(0, valor), dia: a.dia)
             }
         }
     }
@@ -187,12 +188,16 @@ final class DataStore {
             case .aigua(let ml): snap.aiguaMl += ml
             case .cafe(let n): snap.cafes += n
             case .queixa: snap.queixes += 1
+            case .cansament(let valor): snap.cansament = max(0, valor)
             case .comprat: break
             }
         }
         guard snap != HuiSnapshot.carrega() else { return }
         snap.desa()
         Task { await AccionsRapides.refresca(snap) }
+        #if os(iOS)
+        ServeiRellotge.shared.programaEnviament()
+        #endif
     }
 
     /// El contingut de la notificació del resum depén dels dies: es recalcula uns segons després
@@ -255,6 +260,9 @@ final class DataStore {
             canvis = true
         }
 
+        #if os(iOS)
+        if canvis { ServeiRellotge.shared.programaEnviament() }
+        #endif
         #if canImport(WidgetKit)
         if canvis { WidgetCenter.shared.reloadAllTimelines() }
         #endif
