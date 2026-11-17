@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>ca</string>
+	<key>CFBundleDisplayName</key>
+	<string>Mariapp</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>es.mariapp.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>mariapp</string>
+			</array>
+		</dict>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.healthcare-fitness</string>
+	<key>MariappAppGroup</key>
+	<string>$(MARIAPP_APP_GROUP)</string>
+	<key>NSAlarmKitUsageDescription</key>
+	<string>Perquè no se t'oblide cap metge, Mariapp pot posar alarmes de despertador.</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Mariapp llig el calendari compartit per a posar-li emojis, colors i avisos als esdeveniments, i per a apuntar-hi les cites del metge.</string>
+	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
+	<string>Mariapp apunta les cites del metge al calendari.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Mariapp llig els teus entrenaments i el son per a apuntar el gimnàs sola i veure com descanses.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Mariapp apunta a Salut l'aigua que beus.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>Crema</string>
+	</dict>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+</dict>
+</plist>
