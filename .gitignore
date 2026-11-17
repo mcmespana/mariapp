@@ -10,3 +10,4 @@ xcuserdata/
 .build/
 Config/Local.xcconfig
 .DS_Store
+Mariapp/Resources/GoogleService-Info.plist

@@ -26,6 +26,11 @@ jobs:
         run: ls /Applications | grep -i xcode; xcodebuild -version; xcodebuild -showsdks | grep -iE "ios|macos|watchos"
       - name: Instal·la XcodeGen
         run: brew install xcodegen
+      - name: Escriu GoogleService-Info.plist (secret)
+        env:
+          GOOGLE_PLIST: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}
+        run: |
+          if [ -n "$GOOGLE_PLIST" ]; then printf '%s' "$GOOGLE_PLIST" > Mariapp/Resources/GoogleService-Info.plist; else echo "Sense secret: es compila sense sincronització"; fi
       - name: Genera el projecte
         run: xcodegen generate
       - name: Cache de paquets SPM

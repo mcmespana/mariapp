@@ -50,6 +50,11 @@ jobs:
         run: |
           echo "BUILD_NUMBER=${{ github.run_number }}" >> "$GITHUB_ENV"
           if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then echo "VERSIO=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"; else echo "VERSIO=" >> "$GITHUB_ENV"; fi
+      - name: Escriu GoogleService-Info.plist (secret)
+        env:
+          GOOGLE_PLIST: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}
+        run: |
+          if [ -n "$GOOGLE_PLIST" ]; then printf '%s' "$GOOGLE_PLIST" > Mariapp/Resources/GoogleService-Info.plist; else echo "Sense secret: es compila sense sincronització"; fi
       - name: Genera el projecte
         run: xcodegen generate
       - name: Arxiva (iOS)
@@ -120,6 +125,11 @@ jobs:
         run: |
           echo "BUILD_NUMBER=${{ github.run_number }}" >> "$GITHUB_ENV"
           if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then echo "VERSIO=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"; else echo "VERSIO=" >> "$GITHUB_ENV"; fi
+      - name: Escriu GoogleService-Info.plist (secret)
+        env:
+          GOOGLE_PLIST: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST }}
+        run: |
+          if [ -n "$GOOGLE_PLIST" ]; then printf '%s' "$GOOGLE_PLIST" > Mariapp/Resources/GoogleService-Info.plist; else echo "Sense secret: es compila sense sincronització"; fi
       - name: Genera el projecte
         run: xcodegen generate
       - name: Arxiva (macOS)
